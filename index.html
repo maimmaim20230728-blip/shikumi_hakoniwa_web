@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>仕組みの箱庭</title>
+<meta name="description" content="坂・ドミノ・シーソー・扇風機を置いて、玉をゴールへ。本物の物理で連鎖するからくりを組んで眺める箱庭。オフライン・12言語。">
+<meta name="theme-color" content="#0e1622">
+<meta property="og:title" content="仕組みの箱庭 / Shikumi no Hakoniwa">
+<meta property="og:description" content="坂・ドミノ・シーソー・扇風機を置いて、玉をゴールへ。本物の物理で連鎖するからくりを組んで眺める箱庭。オフライン・12言語。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shikumi-hakoniwa-web.vercel.app/">
+<meta property="og:image" content="https://shikumi-hakoniwa-web.vercel.app/icons/fc-card-3x2.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Farcaster Mini App 埋め込み(タイムラインで画像+ボタン→タップで起動)🔴web側専用・Play側(www)に入れない -->
+<meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://shikumi-hakoniwa-web.vercel.app/icons/fc-card-3x2.png","button":{"title":"⚙️ ひらく / Open","action":{"type":"launch_miniapp","name":"仕組みの箱庭","url":"https://shikumi-hakoniwa-web.vercel.app/","splashImageUrl":"https://shikumi-hakoniwa-web.vercel.app/icons/icon-512.png","splashBackgroundColor":"#0e1622"}}}' />
+<meta name="fc:frame" content='{"version":"1","imageUrl":"https://shikumi-hakoniwa-web.vercel.app/icons/fc-card-3x2.png","button":{"title":"⚙️ ひらく / Open","action":{"type":"launch_frame","name":"仕組みの箱庭","url":"https://shikumi-hakoniwa-web.vercel.app/","splashImageUrl":"https://shikumi-hakoniwa-web.vercel.app/icons/icon-512.png","splashBackgroundColor":"#0e1622"}}}' />
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --bg:#0e1622; --bg2:#132436; --ink:#eaf4ff; --sub:#9db6cf;
+    --mizu:#7fd4ff; --midori:#7ee0a8; --line:#2a3d54;
+    --panel:#0f1c2b; --btn:#1b3049; --btnact:#25507a; --edge:#33547d;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    overflow:hidden; overscroll-behavior:none; touch-action:none;}
+  #app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  #wrap{position:relative;display:flex;flex-direction:column;background:var(--bg);
+    box-shadow:0 0 40px rgba(0,0,0,.5);overflow:hidden;}
+  #stage{flex:66;position:relative;min-height:0;background:
+    radial-gradient(120% 90% at 50% 0%, #16273c 0%, var(--bg) 62%);}
+  #cv{display:block;width:100%;height:100%;}
+  #controls{flex:34;min-height:0;overflow-y:auto;background:var(--panel);
+    border-top:1px solid var(--line);padding:8px 9px 12px;}
+
+  #start{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;gap:14px;padding:22px;
+    background:radial-gradient(130% 100% at 50% 20%, #16283e 0%, var(--bg) 70%);}
+  #title{font-size:44px;font-weight:800;letter-spacing:.02em;line-height:1.15;
+    background:linear-gradient(180deg,#ffffff 0%, var(--mizu) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 22px rgba(127,212,255,.25);}
+  @supports not ((-webkit-background-clip:text) or (background-clip:text)){ #title{color:#eaf4ff;} }
+  #subtitle{font-size:15px;color:var(--sub);max-width:16em;line-height:1.7;}
+  #startBtn{margin-top:6px;padding:14px 30px;font-size:19px;font-weight:700;color:#06222f;
+    background:linear-gradient(180deg,var(--mizu),#4bb8ee);border:none;border-radius:16px;
+    box-shadow:0 6px 18px rgba(75,184,238,.35);cursor:pointer;}
+  #startBtn:active{transform:translateY(1px);}
+  #startLang{margin-top:2px;}
+  #startLang select{background:var(--btn);color:var(--ink);border:1px solid var(--edge);
+    border-radius:10px;padding:8px 12px;font-size:14px;}
+  .credit{position:absolute;bottom:12px;left:0;right:0;font-size:11px;color:#5f7893;line-height:1.6;}
+  .credit a{color:#82a6c8;text-decoration:underline;}
+
+  #modeBar{display:flex;gap:6px;margin-bottom:8px;}
+  #modeBar button{flex:1;padding:10px 0;font-size:15px;font-weight:700;color:var(--sub);
+    background:var(--btn);border:1px solid var(--edge);border-radius:12px;cursor:pointer;}
+  #modeBar button.on{color:#06222f;background:linear-gradient(180deg,var(--midori),#4cc98a);border-color:transparent;}
+
+  .panel{display:none;}
+  .panel.on{display:block;}
+  .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{flex:1 1 calc(33.33% - 4px);min-width:0;padding:11px 4px;font-size:13.5px;font-weight:600;
+    color:var(--ink);background:var(--btn);border:1px solid var(--edge);border-radius:12px;
+    text-align:center;cursor:pointer;white-space:nowrap;}
+  .chip .em{font-size:19px;display:block;line-height:1.25;}
+  .chip.on{background:var(--btnact);border-color:var(--mizu);color:#fff;}
+  .act{padding:13px 6px;font-size:15px;font-weight:700;border-radius:13px;cursor:pointer;
+    border:1px solid var(--edge);color:var(--ink);background:var(--btn);}
+  .act.primary{color:#06222f;background:linear-gradient(180deg,var(--mizu),#4bb8ee);border-color:transparent;}
+  .act.ghost{background:transparent;}
+  .act:active{transform:translateY(1px);}
+  #playRow{display:flex;gap:7px;}
+  #playRow .act{flex:1;}
+  .slabel{font-size:12.5px;color:var(--sub);margin:4px 2px 2px;display:flex;justify-content:space-between;}
+  input[type=range]{width:100%;height:30px;accent-color:var(--mizu);background:transparent;}
+  .hint{font-size:12px;color:var(--sub);line-height:1.6;margin:6px 2px 2px;}
+  .small{font-size:11.5px;color:#6f88a2;margin-top:8px;text-align:center;line-height:1.6;}
+  .sliders{margin-top:4px;}
+  #scrollBtns{position:absolute;right:8px;bottom:10px;z-index:5;display:flex;flex-direction:column;gap:8px;}
+  #scrollBtns button{width:46px;height:46px;border-radius:12px;font-size:18px;color:var(--ink);
+    background:rgba(27,48,73,.85);border:1px solid var(--edge);cursor:pointer;}
+  #scrollBtns button:active{transform:translateY(1px);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="wrap">
+    <div id="stage">
+      <canvas id="cv"></canvas>
+      <div id="scrollBtns" style="display:none">
+        <button id="scrUp">▲</button>
+        <button id="scrDown">▼</button>
+      </div>
+      <div id="start">
+        <div id="title">仕組みの箱庭</div>
+        <div id="subtitle" data-i18n="subtitle">仕掛けを組んで、玉をゴールへ。<br>坂・ドミノ・シーソー・扇風機を置いて、次々に動くしくみを作ろう。</div>
+        <button id="startBtn" data-i18n="start">はじめる</button>
+        <div id="startLang" data-langhost></div>
+        <div class="credit">
+          <span data-i18n="dev_credit">介護と支援の相談どころ</span>
+          <a href="https://soyogi.hp.peraichi.com/top" target="_blank" rel="noopener" onclick="event.stopPropagation()">そよぎ</a>
+        </div>
+      </div>
+    </div>
+    <div id="controls">
+      <div id="modeBar">
+        <button id="mBuild" class="on" data-i18n="m_build">つくる</button>
+        <button id="mPlay" data-i18n="m_play">あそぶ</button>
+      </div>
+      <div id="buildPanel" class="panel on">
+        <div class="seg" id="toolSeg">
+          <div class="chip on" data-tool="spawn"><span class="em">◎</span><span data-i18n="t_spawn">玉口</span></div>
+          <div class="chip" data-tool="ramp"><span class="em">╱</span><span data-i18n="t_ramp">坂</span></div>
+          <div class="chip" data-tool="domino"><span class="em">▮</span><span data-i18n="t_domino">ドミノ</span></div>
+          <div class="chip" data-tool="seesaw"><span class="em">⤢</span><span data-i18n="t_seesaw">シーソー</span></div>
+          <div class="chip" data-tool="fan"><span class="em">🌀</span><span data-i18n="t_fan">扇風機</span></div>
+          <div class="chip" data-tool="goal"><span class="em">🏁</span><span data-i18n="t_goal">ゴール</span></div>
+          <div class="chip" data-tool="erase"><span class="em">✕</span><span data-i18n="t_erase">消す</span></div>
+        </div>
+        <div class="hint" id="toolHint" data-i18n="hint_spawn">玉が落ちてくる場所です。タップで置きます。</div>
+        <div class="sliders" id="sliders"></div>
+        <div class="slabel" style="margin-top:8px"><span data-i18n="world_h">たかさ(画面のかず)</span><span id="worldHVal">1</span></div>
+        <input type="range" id="worldH" min="1" max="10" step="1" value="1">
+        <div class="row" style="margin-top:10px">
+          <button class="act ghost" id="clearBtn" style="flex:1" data-i18n="clear_all">全部消す</button>
+        </div>
+        <div class="slabel" style="margin-top:10px"><span data-i18n="saved">保存したしくみ</span><span id="saveModeLbl" style="color:var(--mizu)"></span></div>
+        <div class="seg" id="slotSeg"></div>
+        <div class="row" style="gap:6px;margin-top:6px">
+          <button class="act" id="saveModeBtn" style="flex:1" data-i18n="save_mode">保存する</button>
+          <button class="act ghost" id="codeToggle" style="flex:1" data-i18n="code_share">共有コード</button>
+        </div>
+        <div id="codeBox" style="display:none;margin-top:6px">
+          <div class="hint" data-i18n="code_hint">このコードを送れば、同じしくみを他の人が再現できます。</div>
+          <textarea id="codeArea" spellcheck="false" style="width:100%;height:54px;background:var(--btn);color:var(--ink);border:1px solid var(--edge);border-radius:10px;padding:7px;font-size:11px;resize:none;"></textarea>
+          <div class="row" style="gap:6px;margin-top:4px">
+            <button class="act" id="copyBtn" style="flex:1" data-i18n="copy">コピー</button>
+            <button class="act" id="pasteBtn" style="flex:1" data-i18n="paste_load">はりつけて読む</button>
+          </div>
+        </div>
+      </div>
+      <div id="playPanel" class="panel">
+        <div id="playRow">
+          <button class="act primary" id="dropBtn" data-i18n="drop">おとす</button>
+          <button class="act" id="resetBtn" data-i18n="reset">もどす</button>
+        </div>
+        <div class="slabel"><span data-i18n="speed">速さ</span><span id="speedVal">1.0×</span></div>
+        <input type="range" id="speed" min="0.5" max="2" step="0.5" value="1">
+        <div class="slabel"><span data-i18n="volume">音量</span><span id="volVal">50</span></div>
+        <input type="range" id="vol" min="0" max="100" step="1" value="50">
+        <div class="slabel"><span data-i18n="bgm">BGM</span><span id="bgmVal">1.0×</span></div>
+        <input type="range" id="bgm" min="0" max="3" step="0.1" value="1">
+        <div class="hint" data-i18n="hint_play">「おとす」で玉が落ちます。仕掛けに当たると次々に動きます。物理でちゃんと転がり、倒れます。</div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="act ghost" id="homeBtn" style="flex:1" data-i18n="to_title">タイトルにもどる</button>
+      </div>
+      <div class="small"><span data-langhost2></span></div>
+    </div>
+  </div>
+</div>
+
+<script src="matter.min.js"></script>
+<script>
+/* =========================================================================
+   仕組みの箱庭 — Matter.js(本物の2D剛体物理)による連鎖反応トイ
+   ・玉/ドミノ/シーソーは本物の物理で動く(自然に転がる・倒れる・乗り越える)
+   ・9:16固定 / 論理幅REFW=405固定 / 一様スケール描画(音の箱庭の作法を踏襲)
+   ・固定タイムステップで更新=毎回同じに動く(おまかせで眺めるため)
+   ========================================================================= */
+(function(){
+'use strict';
+var M = window.Matter;
+var Engine=M.Engine, World=M.World, Composite=M.Composite, Bodies=M.Bodies,
+    Body=M.Body, Constraint=M.Constraint, Events=M.Events, Vector=M.Vector;
+
+/* ---------- i18n(12言語・インライン) ---------- */
+var I18N = { ja:{
+  subtitle:'仕掛けを組んで、玉をゴールへ。<br>坂・ドミノ・シーソー・扇風機を置いて、次々に動くしくみを作ろう。',
+  start:'はじめる', dev_credit:'介護と支援の相談どころ',
+  m_build:'つくる', m_play:'あそぶ',
+  t_spawn:'玉口', t_ramp:'坂', t_domino:'ドミノ', t_seesaw:'シーソー', t_fan:'扇風機', t_goal:'ゴール', t_erase:'消す',
+  hint_spawn:'玉が落ちてくる場所です。タップで置きます。',
+  hint_ramp:'玉を転がす坂です。タップで置いて、長さ・かたむきを変えられます。',
+  hint_domino:'当たると倒れて、次のドミノや玉を動かします。並べて置きます。',
+  hint_seesaw:'片側に玉が乗ると傾きます。タップで置きます。',
+  hint_fan:'風で玉を押します。向きと強さを変えられます。タップで置きます。',
+  hint_goal:'玉が入るとゴールです。タップで置きます。',
+  hint_erase:'消したい仕掛けをタップします。',
+  clear_all:'全部消す', drop:'おとす', reset:'もどす',
+  speed:'速さ', volume:'音量', lang:'ことば',
+  hint_play:'「おとす」で玉が落ちます。仕掛けに当たると次々に動きます。物理でちゃんと転がり、倒れます。',
+  s_len:'長さ', s_ang:'かたむき', s_dir:'向き', s_power:'強さ', s_size:'大きさ', s_num:'数',
+  saved:'保存したしくみ', save_mode:'保存する', load_mode:'よびだす', code_share:'共有コード',
+  code_hint:'このコードを送れば、同じしくみを他の人が再現できます。', copy:'コピー', paste_load:'はりつけて読む',
+  saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ' },
+en:{
+  subtitle:'Build a contraption and send the ball to the goal.<br>Place ramps, dominoes, seesaws and fans so that one thing sets off the next.',
+  start:'Start', dev_credit:'Care & support consultation service',
+  m_build:'Build', m_play:'Play',
+  t_spawn:'Ball drop', t_ramp:'Ramp', t_domino:'Domino', t_seesaw:'Seesaw', t_fan:'Fan', t_goal:'Goal', t_erase:'Erase',
+  hint_spawn:'This is where the ball comes out. Tap to place it.',
+  hint_ramp:'A slope the ball rolls down. Tap to place it, then change its length and tilt.',
+  hint_domino:'It falls when hit and pushes the next domino or the ball. Line them up.',
+  hint_seesaw:'It tilts when the ball lands on one side. Tap to place it.',
+  hint_fan:'Its wind pushes the ball. You can change the direction and strength. Tap to place it.',
+  hint_goal:'The ball reaching here is the goal. Tap to place it.',
+  hint_erase:'Tap the part you want to erase.',
+  clear_all:'Clear all', drop:'Drop', reset:'Reset',
+  speed:'Speed', volume:'Volume', lang:'Language',
+  hint_play:'Tap “Drop” and the ball falls. When it hits a part, one thing sets off the next. Everything rolls and topples with real physics.',
+  s_len:'Length', s_ang:'Tilt', s_dir:'Direction', s_power:'Strength', s_size:'Size', s_num:'Count',
+  saved:'Saved builds', save_mode:'Save', load_mode:'Load', code_share:'Share code',
+  code_hint:'Send this code and someone else can rebuild the same contraption.', copy:'Copy', paste_load:'Paste & load',
+  saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness' },
+de:{
+  subtitle:'Baue eine Maschine und bring die Kugel ins Ziel.<br>Stelle Rampen, Dominos, Wippen und Ventilatoren auf, damit eines das nächste auslöst.',
+  start:'Starten', dev_credit:'Beratungsstelle für Pflege und Unterstützung',
+  m_build:'Bauen', m_play:'Spielen',
+  t_spawn:'Kugelstart', t_ramp:'Rampe', t_domino:'Domino', t_seesaw:'Wippe', t_fan:'Ventilator', t_goal:'Ziel', t_erase:'Löschen',
+  hint_spawn:'Hier kommt die Kugel heraus. Zum Platzieren tippen.',
+  hint_ramp:'Eine Schräge, auf der die Kugel rollt. Zum Platzieren tippen, dann Länge und Neigung ändern.',
+  hint_domino:'Fällt bei Berührung um und stößt den nächsten Domino oder die Kugel an. In einer Reihe aufstellen.',
+  hint_seesaw:'Kippt, wenn die Kugel auf eine Seite kommt. Zum Platzieren tippen.',
+  hint_fan:'Der Wind schiebt die Kugel. Richtung und Stärke sind einstellbar. Zum Platzieren tippen.',
+  hint_goal:'Kommt die Kugel hier an, ist das Ziel erreicht. Zum Platzieren tippen.',
+  hint_erase:'Tippe auf das Teil, das du löschen willst.',
+  clear_all:'Alles löschen', drop:'Fallen lassen', reset:'Zurück',
+  speed:'Tempo', volume:'Lautstärke', lang:'Sprache',
+  hint_play:'Mit „Fallen lassen“ fällt die Kugel. Trifft sie ein Teil, setzt eines das nächste in Gang. Alles rollt und kippt mit echter Physik.',
+  s_len:'Länge', s_ang:'Neigung', s_dir:'Richtung', s_power:'Stärke', s_size:'Größe', s_num:'Anzahl',
+  saved:'Gespeicherte Aufbauten', save_mode:'Speichern', load_mode:'Laden', code_share:'Teilen-Code',
+  code_hint:'Schicke diesen Code, dann kann jemand anderes den gleichen Aufbau nachbauen.', copy:'Kopieren', paste_load:'Einfügen & laden',
+  saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke' },
+fr:{
+  subtitle:"Construis un mécanisme et amène la bille jusqu'au but.<br>Place des rampes, des dominos, des bascules et des ventilateurs pour que tout s'enchaîne.",
+  start:'Commencer', dev_credit:'Service de conseil en soins et accompagnement',
+  m_build:'Construire', m_play:'Jouer',
+  t_spawn:'Départ', t_ramp:'Rampe', t_domino:'Domino', t_seesaw:'Bascule', t_fan:'Ventilateur', t_goal:'But', t_erase:'Effacer',
+  hint_spawn:"La bille tombe d'ici. Touche pour le placer.",
+  hint_ramp:'Une pente sur laquelle la bille roule. Touche pour la placer, puis change sa longueur et son inclinaison.',
+  hint_domino:'Il tombe quand on le heurte et pousse le domino ou la bille suivante. Place-les en file.',
+  hint_seesaw:"Elle bascule quand la bille arrive d'un côté. Touche pour la placer.",
+  hint_fan:'Le vent pousse la bille. Tu peux changer la direction et la force. Touche pour le placer.',
+  hint_goal:"Quand la bille y entre, c'est gagné. Touche pour le placer.",
+  hint_erase:"Touche l'élément que tu veux effacer.",
+  clear_all:'Tout effacer', drop:'Lâcher', reset:'Réinitialiser',
+  speed:'Vitesse', volume:'Volume', lang:'Langue',
+  hint_play:"Avec « Lâcher », la bille tombe. Quand elle touche un élément, tout s'enchaîne. Ça roule et ça tombe avec une vraie physique.",
+  s_len:'Longueur', s_ang:'Inclinaison', s_dir:'Direction', s_power:'Force', s_size:'Taille', s_num:'Nombre',
+  saved:'Montages enregistrés', save_mode:'Enregistrer', load_mode:'Charger', code_share:'Code à partager',
+  code_hint:'Envoie ce code et une autre personne pourra reconstruire le même montage.', copy:'Copier', paste_load:'Coller et charger',
+  saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur' },
+es:{
+  subtitle:'Construye un mecanismo y lleva la bola a la meta.<br>Coloca rampas, fichas de dominó, balancines y ventiladores para encadenar el movimiento.',
+  start:'Empezar', dev_credit:'Servicio de consulta sobre cuidados y apoyo',
+  m_build:'Construir', m_play:'Jugar',
+  t_spawn:'Salida', t_ramp:'Rampa', t_domino:'Dominó', t_seesaw:'Balancín', t_fan:'Ventilador', t_goal:'Meta', t_erase:'Borrar',
+  hint_spawn:'Por aquí sale la bola. Toca para colocarlo.',
+  hint_ramp:'Una pendiente por la que rueda la bola. Toca para colocarla y cambia su largo e inclinación.',
+  hint_domino:'Cae al ser golpeada y empuja la siguiente ficha o la bola. Colócalas en fila.',
+  hint_seesaw:'Se inclina cuando la bola cae en un lado. Toca para colocarlo.',
+  hint_fan:'El viento empuja la bola. Puedes cambiar la dirección y la fuerza. Toca para colocarlo.',
+  hint_goal:'Cuando la bola entra aquí, llega a la meta. Toca para colocarla.',
+  hint_erase:'Toca la pieza que quieras borrar.',
+  clear_all:'Borrar todo', drop:'Soltar', reset:'Reiniciar',
+  speed:'Velocidad', volume:'Volumen', lang:'Idioma',
+  hint_play:'Con «Soltar» cae la bola. Al chocar con una pieza, una cosa activa la siguiente. Rueda y se cae con física de verdad.',
+  s_len:'Largo', s_ang:'Inclinación', s_dir:'Dirección', s_power:'Fuerza', s_size:'Tamaño', s_num:'Cantidad',
+  saved:'Montajes guardados', save_mode:'Guardar', load_mode:'Cargar', code_share:'Código para compartir',
+  code_hint:'Envía este código y otra persona podrá reproducir el mismo montaje.', copy:'Copiar', paste_load:'Pegar y cargar',
+  saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor' },
+it:{
+  subtitle:'Costruisci un meccanismo e porta la pallina al traguardo.<br>Metti rampe, domino, altalene e ventilatori per far partire una reazione a catena.',
+  start:'Inizia', dev_credit:'Servizio di consulenza su cura e sostegno',
+  m_build:'Costruisci', m_play:'Gioca',
+  t_spawn:'Partenza', t_ramp:'Rampa', t_domino:'Domino', t_seesaw:'Altalena', t_fan:'Ventilatore', t_goal:'Traguardo', t_erase:'Cancella',
+  hint_spawn:'Da qui esce la pallina. Tocca per posizionarlo.',
+  hint_ramp:'Una discesa su cui rotola la pallina. Tocca per posizionarla e cambia lunghezza e inclinazione.',
+  hint_domino:'Cade quando viene colpito e spinge il domino o la pallina successiva. Mettili in fila.',
+  hint_seesaw:'Si inclina quando la pallina sale da un lato. Tocca per posizionarla.',
+  hint_fan:'Il vento spinge la pallina. Puoi cambiare direzione e forza. Tocca per posizionarlo.',
+  hint_goal:'Quando la pallina entra qui, è traguardo. Tocca per posizionarlo.',
+  hint_erase:'Tocca il pezzo che vuoi cancellare.',
+  clear_all:'Cancella tutto', drop:'Lascia cadere', reset:'Reimposta',
+  speed:'Velocità', volume:'Volume', lang:'Lingua',
+  hint_play:'Con «Lascia cadere» la pallina cade. Quando colpisce un pezzo, parte la reazione a catena. Rotola e cade con vera fisica.',
+  s_len:'Lunghezza', s_ang:'Inclinazione', s_dir:'Direzione', s_power:'Forza', s_size:'Dimensione', s_num:'Numero',
+  saved:'Costruzioni salvate', save_mode:'Salva', load_mode:'Carica', code_share:'Codice da condividere',
+  code_hint:'Invia questo codice e un altro potrà ricreare la stessa costruzione.', copy:'Copia', paste_load:'Incolla e carica',
+  saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore' },
+pt:{
+  subtitle:'Monte um mecanismo e leve a bola até a meta.<br>Coloque rampas, dominós, gangorras e ventiladores para uma coisa acionar a outra.',
+  start:'Começar', dev_credit:'Serviço de consulta sobre cuidados e apoio',
+  m_build:'Montar', m_play:'Jogar',
+  t_spawn:'Saída', t_ramp:'Rampa', t_domino:'Dominó', t_seesaw:'Gangorra', t_fan:'Ventilador', t_goal:'Meta', t_erase:'Apagar',
+  hint_spawn:'É daqui que a bola sai. Toque para colocar.',
+  hint_ramp:'Uma rampa por onde a bola rola. Toque para colocar e mude o comprimento e a inclinação.',
+  hint_domino:'Cai ao ser atingido e empurra o próximo dominó ou a bola. Coloque em fila.',
+  hint_seesaw:'Inclina quando a bola cai de um lado. Toque para colocar.',
+  hint_fan:'O vento empurra a bola. Dá para mudar a direção e a força. Toque para colocar.',
+  hint_goal:'Quando a bola entra aqui, é a meta. Toque para colocar.',
+  hint_erase:'Toque na peça que quer apagar.',
+  clear_all:'Apagar tudo', drop:'Soltar', reset:'Reiniciar',
+  speed:'Velocidade', volume:'Volume', lang:'Idioma',
+  hint_play:'Com «Soltar» a bola cai. Ao bater numa peça, uma coisa aciona a outra. Rola e tomba com física de verdade.',
+  s_len:'Comprimento', s_ang:'Inclinação', s_dir:'Direção', s_power:'Força', s_size:'Tamanho', s_num:'Quantidade',
+  saved:'Montagens salvas', save_mode:'Salvar', load_mode:'Carregar', code_share:'Código para compartilhar',
+  code_hint:'Envie este código e outra pessoa poderá refazer a mesma montagem.', copy:'Copiar', paste_load:'Colar e carregar',
+  saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura' },
+nl:{
+  subtitle:'Bouw een mechaniek en breng de bal naar de finish.<br>Zet hellingen, domino’s, wippen en ventilatoren neer zodat het één het ander in gang zet.',
+  start:'Starten', dev_credit:'Advies- en ondersteuningspunt voor zorg',
+  m_build:'Bouwen', m_play:'Spelen',
+  t_spawn:'Startpunt', t_ramp:'Helling', t_domino:'Domino', t_seesaw:'Wip', t_fan:'Ventilator', t_goal:'Finish', t_erase:'Wissen',
+  hint_spawn:'Hier komt de bal vandaan. Tik om te plaatsen.',
+  hint_ramp:'Een helling waarover de bal rolt. Tik om te plaatsen en verander lengte en helling.',
+  hint_domino:'Valt om bij een botsing en duwt de volgende domino of de bal. Zet ze op een rij.',
+  hint_seesaw:'Kantelt als de bal aan één kant komt. Tik om te plaatsen.',
+  hint_fan:'De wind duwt de bal. Richting en kracht zijn instelbaar. Tik om te plaatsen.',
+  hint_goal:'Komt de bal hierin, dan is het gehaald. Tik om te plaatsen.',
+  hint_erase:'Tik op het onderdeel dat je wilt wissen.',
+  clear_all:'Alles wissen', drop:'Loslaten', reset:'Terug',
+  speed:'Snelheid', volume:'Volume', lang:'Taal',
+  hint_play:'Met “Loslaten” valt de bal. Raakt hij een onderdeel, dan zet het één het ander in gang. Alles rolt en valt met echte natuurkunde.',
+  s_len:'Lengte', s_ang:'Helling', s_dir:'Richting', s_power:'Kracht', s_size:'Grootte', s_num:'Aantal',
+  saved:'Opgeslagen bouwsels', save_mode:'Opslaan', load_mode:'Laden', code_share:'Deelcode',
+  code_hint:'Stuur deze code en iemand anders kan hetzelfde bouwsel namaken.', copy:'Kopiëren', paste_load:'Plakken en laden',
+  saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte' },
+sv:{
+  subtitle:'Bygg en maskin och få kulan till målet.<br>Placera ramper, dominobrickor, gungbrädor och fläktar så att det ena sätter igång det andra.',
+  start:'Starta', dev_credit:'Rådgivning om vård och stöd',
+  m_build:'Bygg', m_play:'Spela',
+  t_spawn:'Startpunkt', t_ramp:'Ramp', t_domino:'Domino', t_seesaw:'Gungbräda', t_fan:'Fläkt', t_goal:'Mål', t_erase:'Radera',
+  hint_spawn:'Härifrån kommer kulan. Tryck för att placera.',
+  hint_ramp:'En lutning som kulan rullar på. Tryck för att placera och ändra längd och lutning.',
+  hint_domino:'Faller när den träffas och knuffar nästa bricka eller kulan. Ställ dem på rad.',
+  hint_seesaw:'Tippar när kulan hamnar på ena sidan. Tryck för att placera.',
+  hint_fan:'Vinden knuffar kulan. Du kan ändra riktning och styrka. Tryck för att placera.',
+  hint_goal:'Når kulan hit är det mål. Tryck för att placera.',
+  hint_erase:'Tryck på delen du vill radera.',
+  clear_all:'Rensa allt', drop:'Släpp', reset:'Återställ',
+  speed:'Hastighet', volume:'Volym', lang:'Språk',
+  hint_play:'Med ”Släpp” faller kulan. Träffar den en del sätter det ena igång det andra. Allt rullar och välter med riktig fysik.',
+  s_len:'Längd', s_ang:'Lutning', s_dir:'Riktning', s_power:'Styrka', s_size:'Storlek', s_num:'Antal',
+  saved:'Sparade byggen', save_mode:'Spara', load_mode:'Ladda', code_share:'Delningskod',
+  code_hint:'Skicka koden så kan någon annan bygga exakt samma sak.', copy:'Kopiera', paste_load:'Klistra in och ladda',
+  saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek' },
+ko:{
+  subtitle:'장치를 만들어 공을 골까지 보내세요.<br>경사·도미노·시소·선풍기를 놓아 차례차례 움직이는 구조를 만들어 보세요.',
+  start:'시작하기', dev_credit:'돌봄과 지원 상담소',
+  m_build:'만들기', m_play:'놀기',
+  t_spawn:'공 나오는 곳', t_ramp:'경사', t_domino:'도미노', t_seesaw:'시소', t_fan:'선풍기', t_goal:'골', t_erase:'지우기',
+  hint_spawn:'공이 나오는 곳입니다. 탭해서 놓습니다.',
+  hint_ramp:'공이 굴러가는 경사입니다. 탭해서 놓고 길이와 기울기를 바꿀 수 있습니다.',
+  hint_domino:'부딪히면 넘어져 다음 도미노나 공을 움직입니다. 나란히 놓습니다.',
+  hint_seesaw:'한쪽에 공이 올라가면 기울어집니다. 탭해서 놓습니다.',
+  hint_fan:'바람으로 공을 밉니다. 방향과 세기를 바꿀 수 있습니다. 탭해서 놓습니다.',
+  hint_goal:'공이 들어가면 골입니다. 탭해서 놓습니다.',
+  hint_erase:'지우고 싶은 장치를 탭합니다.',
+  clear_all:'전부 지우기', drop:'떨어뜨리기', reset:'되돌리기',
+  speed:'속도', volume:'음량', lang:'언어',
+  hint_play:'「떨어뜨리기」를 누르면 공이 떨어집니다. 장치에 닿으면 차례차례 움직입니다. 실제 물리로 구르고 넘어집니다.',
+  s_len:'길이', s_ang:'기울기', s_dir:'방향', s_power:'세기', s_size:'크기', s_num:'개수',
+  saved:'저장한 장치', save_mode:'저장하기', load_mode:'불러오기', code_share:'공유 코드',
+  code_hint:'이 코드를 보내면 다른 사람이 같은 장치를 그대로 만들 수 있습니다.', copy:'복사', paste_load:'붙여넣어 읽기',
+  saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께' },
+zh:{
+  subtitle:'搭建装置，把小球送到终点。<br>放置斜坡、多米诺、跷跷板和风扇，做出一个接一个动起来的机关。',
+  start:'开始', dev_credit:'介护与支援咨询处',
+  m_build:'搭建', m_play:'玩',
+  t_spawn:'出球口', t_ramp:'斜坡', t_domino:'多米诺', t_seesaw:'跷跷板', t_fan:'风扇', t_goal:'终点', t_erase:'删除',
+  hint_spawn:'小球从这里落下。点一下就能放置。',
+  hint_ramp:'让小球滚动的斜坡。点一下放置，可以改变长度和倾斜度。',
+  hint_domino:'被撞到就会倒下，推动下一块多米诺或小球。请排成一排放置。',
+  hint_seesaw:'小球压到一边就会倾斜。点一下就能放置。',
+  hint_fan:'用风推动小球。可以改变方向和强度。点一下就能放置。',
+  hint_goal:'小球进入这里就算到达终点。点一下就能放置。',
+  hint_erase:'点一下想删除的机关。',
+  clear_all:'全部清除', drop:'放球', reset:'复位',
+  speed:'速度', volume:'音量', lang:'语言',
+  hint_play:'点「放球」小球就会落下。碰到机关就会一个接一个动起来。用真实物理滚动、倒下。',
+  s_len:'长度', s_ang:'倾斜', s_dir:'方向', s_power:'强度', s_size:'大小', s_num:'数量',
+  saved:'已保存的机关', save_mode:'保存', load_mode:'读取', code_share:'分享代码',
+  code_hint:'把这个代码发给别人，就能还原出同样的机关。', copy:'复制', paste_load:'粘贴读取',
+  saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度' },
+ar:{
+  subtitle:'اصنع آلة وأوصل الكرة إلى الهدف.<br>ضع المنحدرات وأحجار الدومينو والأرجوحة والمراوح لتتحرك واحدة تلو الأخرى.',
+  start:'ابدأ', dev_credit:'مركز استشارات الرعاية والدعم',
+  m_build:'بناء', m_play:'لعب',
+  t_spawn:'مخرج الكرة', t_ramp:'منحدر', t_domino:'دومينو', t_seesaw:'أرجوحة', t_fan:'مروحة', t_goal:'الهدف', t_erase:'مسح',
+  hint_spawn:'من هنا تخرج الكرة. المس للوضع.',
+  hint_ramp:'منحدر تتدحرج عليه الكرة. المس لوضعه، ويمكن تغيير الطول والميل.',
+  hint_domino:'يسقط عند الاصطدام فيدفع القطعة التالية أو الكرة. ضعها في صف.',
+  hint_seesaw:'تميل عندما تصعد الكرة على أحد جانبيها. المس للوضع.',
+  hint_fan:'الهواء يدفع الكرة. يمكن تغيير الاتجاه والقوة. المس للوضع.',
+  hint_goal:'إذا دخلت الكرة هنا فقد وصلت إلى الهدف. المس للوضع.',
+  hint_erase:'المس القطعة التي تريد مسحها.',
+  clear_all:'مسح الكل', drop:'إسقاط', reset:'إعادة',
+  speed:'السرعة', volume:'مستوى الصوت', lang:'اللغة',
+  hint_play:'اضغط «إسقاط» لتسقط الكرة. عندما تصطدم بقطعة تتحرك واحدة تلو الأخرى. كل شيء يتدحرج ويسقط بفيزياء حقيقية.',
+  s_len:'الطول', s_ang:'الميل', s_dir:'الاتجاه', s_power:'القوة', s_size:'الحجم', s_num:'العدد',
+  saved:'التركيبات المحفوظة', save_mode:'حفظ', load_mode:'تحميل', code_share:'رمز المشاركة',
+  code_hint:'أرسل هذا الرمز ليتمكن شخص آخر من إعادة بناء التركيب نفسه.', copy:'نسخ', paste_load:'لصق وتحميل',
+  saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة' } };
+var LANGS=['ja','en','de','fr','es','it','pt','nl','sv','ko','zh','ar'];
+var LABELS={ja:'日本語',en:'English',de:'Deutsch',fr:'Français',es:'Español',it:'Italiano',pt:'Português',nl:'Nederlands',sv:'Svenska',ko:'한국어',zh:'中文',ar:'العربية'};
+var lang='ja';
+function t(k){ var d=I18N[lang]||{}; if(d[k]!=null)return d[k]; var j=I18N.ja||{}; return (j[k]!=null)?j[k]:k; }
+function applyLang(l){ lang=l; document.documentElement.lang=l; document.documentElement.dir=(l==='ar')?'rtl':'ltr';
+  var ns=document.querySelectorAll('[data-i18n]'); for(var i=0;i<ns.length;i++){ ns[i].innerHTML=t(ns[i].getAttribute('data-i18n')); }
+  try{ localStorage.setItem('shikumi_lang',l); }catch(e){} renderSliders(); }
+function buildLangSelect(host){ if(!host)return; var sel=document.createElement('select');
+  for(var i=0;i<LANGS.length;i++){ var o=document.createElement('option'); o.value=LANGS[i]; o.textContent=LABELS[LANGS[i]]; if(LANGS[i]===lang)o.selected=true; sel.appendChild(o); }
+  sel.addEventListener('change',function(){ applyLang(sel.value); }); host.innerHTML=''; host.appendChild(sel); }
+function detectLang(){ try{ var s=localStorage.getItem('shikumi_lang'); if(s)return s; }catch(e){} var n=(navigator.language||'ja').slice(0,2); return LANGS.indexOf(n)>=0?n:'ja'; }
+
+/* ---------- DOM / レイアウト ---------- */
+var wrap=document.getElementById('wrap'), cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+var REFW=405, W=REFW, H=720, DPR=1, boardReady=false;
+function layout(){
+  var vw=window.innerWidth, vh=window.innerHeight;
+  var ww=Math.min(vw, vh*9/16), wh=ww*16/9;
+  wrap.style.width=ww+'px'; wrap.style.height=wh+'px';
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  var r=cv.getBoundingClientRect(); var pxW=r.width, pxH=r.height;
+  if(pxW<2||pxH<2){ requestAnimationFrame(layout); return; }
+  cv.width=Math.round(pxW*DPR); cv.height=Math.round(pxH*DPR);
+  var newH=Math.round(REFW*pxH/pxW);
+  var changed=(newH!==H); W=REFW; H=newH;
+  var s=(pxW*DPR)/W; ctx.setTransform(s,0,0,s,0,0);
+  if(!boardReady){ buildDefault(); boardReady=true; }
+  else if(changed){ if(!worldTall) worldBottom=H; rebuildWorld(simActive); } // 高さが変わったら壁/床を作り直す(非破壊=配置は保持)
+}
+function toLogical(cx,cy){ var r=cv.getBoundingClientRect(); return { x:(cx-r.left)*(W/r.width), y:(cy-r.top)*(H/r.height)+camY }; }
+
+/* ---------- Matter エンジン ---------- */
+var engine=Engine.create();
+engine.gravity.y=1; engine.gravity.scale=0.0016;
+engine.positionIterations=8; engine.velocityIterations=7;
+var world=engine.world;
+var FIXED=1000/60;
+
+/* ---------- 状態 ---------- */
+var mode='build', simActive=false, tool='spawn';
+var gadgets=[];        // {type,x,y,params..., body, body2, cons, gk}
+var balls=[];          // Matter円ボディ
+var spawn={x:60,y:34};
+var sel=null, dragging=null, dragDX=0, dragDY=0, erasing=false;
+var speed=1, volume=0.5, muted=false, accum=0;
+/* カメラ(縦スクロール): 世界は縦に長い。camYで表示位置をずらし、あそぶ中は玉を追う */
+var camY=0, worldBottom=H, worldTall=false;
+
+/* ---------- ボディ生成 ---------- */
+function tag(b,kind,g){ b.gk=kind; b.gref=g; return b; }
+function rampBodyDims(g){ return {w:g.len, h:g.thick||12}; }
+function makeBodies(g, dynamic){
+  if(g.type==='ramp'){
+    var _Tr=window.__T||{};
+    g.body=tag(Bodies.rectangle(g.x,g.y,g.len,g.thick||12,{isStatic:true,angle:g.ang*Math.PI/180,friction:(_Tr.rampF!=null?_Tr.rampF:0.06),chamfer:{radius:5}}),'ramp',g);
+    Composite.add(world,g.body);
+  } else if(g.type==='domino'){
+    var cy=g.y-g.h/2-0.5; // 基部(g.y)のわずか上に立つ(初期めり込み防止)
+    var _T=window.__T||{};
+    // トリガー式: 立っている間は静的(斜面でも勝手に倒れない)。玉/倒れ中ドミノが触れた瞬間にwakeDominoで動的化して倒す。
+    // 🔴Matterの罠: isStatic:trueで生成→後からsetStatic(false)は質量が壊れNaNで消滅する。動的で生成→直後にsetStatic(true)が正解(元の質量が保存され復元できる)。
+    g.body=tag(Bodies.rectangle(g.x,cy,g.w,g.h,{friction:0.65,frictionStatic:1,frictionAir:(_T.domFA!=null?_T.domFA:0.02),density:(_T.domD!=null?_T.domD:0.012),restitution:0,chamfer:{radius:1}}),'domino',g);
+    Body.setStatic(g.body,true);
+    Composite.add(world,g.body);
+  } else if(g.type==='seesaw'){
+    // 運動学シーソー: 常に静的で、角度を毎フレーム制御(updateSeesaws)。物理制約を使わないので数値爆発せず滑らかに傾く。
+    g.curAng=0;
+    g.body=tag(Bodies.rectangle(g.x,g.y,g.len,10,{isStatic:true,friction:0.5,chamfer:{radius:4}}),'seesaw',g);
+    Composite.add(world,g.body);
+  } else if(g.type==='fan'){
+    g.body=null; // 力場だけ(当たり判定なし)
+  } else if(g.type==='goal'){
+    var hw=g.w/2;
+    g.wallL=tag(Bodies.rectangle(g.x-hw,g.y-8,6,34,{isStatic:true,friction:0.3}),'goalw',g);
+    g.wallR=tag(Bodies.rectangle(g.x+hw,g.y-8,6,34,{isStatic:true,friction:0.3}),'goalw',g);
+    Composite.add(world,[g.wallL,g.wallR]);
+    g.hit=false; g.ring=0;
+  }
+}
+function clearBodies(g){
+  ['body','body2','cons','wallL','wallR'].forEach(function(k){ if(g[k]){ Composite.remove(world,g[k]); g[k]=null; } });
+}
+function rebuildGadget(g){ clearBodies(g); makeBodies(g, simActive && dynType(g.type)); }
+function dynType(tp){ return false; }  // ドミノ=トリガー式(静的→接触で動的化)・シーソー=運動学。常時動的で生成する型はない
+
+var walls=[];
+function buildWalls(){
+  walls.forEach(function(w){ Composite.remove(world,w); }); walls=[];
+  var t=40, wb=worldBottom;
+  walls.push(Bodies.rectangle(-t/2, wb/2, t, wb*2, {isStatic:true}));       // 左
+  walls.push(Bodies.rectangle(W+t/2, wb/2, t, wb*2, {isStatic:true}));      // 右
+  walls.push(Bodies.rectangle(W/2, wb+t/2, W*2, t, {isStatic:true,friction:0.25})); // 床(🔴0.7にすると玉の転がりが即死する=実測。0.25が正)
+  Composite.add(world, walls);
+}
+function rebuildWorld(dynamic){
+  try{ Engine.clear(engine); }catch(e){}   // 衝突ペア等の内部状態も消す=probeと実走の再現性を担保
+  Composite.clear(world,false,true);
+  walls=[]; buildWalls();
+  clearBalls();
+  for(var i=0;i<gadgets.length;i++){
+    ['body','body2','cons','wallL','wallR'].forEach(function(k){ gadgets[i][k]=null; });
+    makeBodies(gadgets[i], dynamic && dynType(gadgets[i].type));
+    if(gadgets[i].type==='goal'){ gadgets[i].hit=false; gadgets[i].ring=0; }
+  }
+  if(dynamic) checkDominoFooting();   // あそぶ開始時: 空中/急斜面のドミノは固定しない(落下・自然に倒れる)
+}
+/* ドミノの足元判定: 支えが無い(空中)か、支えの傾きが30°以上なら最初から動的=落下/勝手に倒れて滑り落ちる */
+function checkDominoFooting(){
+  var bodies=Composite.allBodies(world);
+  for(var i=0;i<gadgets.length;i++){ var g=gadgets[i];
+    if(g.type!=='domino'||!g.body||!g.body.isStatic) continue;
+    var support=null;
+    var pts=[{x:g.x-g.w/2,y:g.y+5},{x:g.x+g.w/2,y:g.y+5}];
+    for(var p=0;p<pts.length && !support;p++){
+      var hits=M.Query.point(bodies, pts[p]);
+      for(var h=0;h<hits.length;h++){ if(hits[h]!==g.body && hits[h].gk!=='ball'){ support=hits[h]; break; } }
+    }
+    var unstable=false;
+    if(!support) unstable=true;                                  // 空中
+    else { var deg=Math.abs(support.angle*180/Math.PI)%180; if(deg>90)deg=180-deg;
+           if(deg>=30) unstable=true; }                          // 急斜面(±30°以上)
+    if(unstable){
+      Body.setStatic(g.body,false);
+      if(!support){                                              // 空中: わずかに傾けて落とし、着地で少し弾んで倒れる(直立着地は不自然)
+        g.body.restitution=0.15;
+        Body.setAngularVelocity(g.body, (g.x>W/2?-1:1)*0.012);
+      }
+    }
+  }
+}
+function clearBalls(){ balls.forEach(function(b){ Composite.remove(world,b); }); balls=[]; }
+
+/* ---------- 仕掛けの既定パラメータ ---------- */
+function newGadget(type,x,y){
+  if(type==='ramp')   return {type:'ramp', x:x, y:y, len:130, thick:12, ang:18};
+  if(type==='domino') return {type:'domino', x:x, y:y, w:9, h:44};
+  if(type==='seesaw') return {type:'seesaw', x:x, y:y, len:130};
+  if(type==='fan')    return {type:'fan', x:x, y:y, w:90, h:80, dir:90, power:1};
+  if(type==='goal')   return {type:'goal', x:x, y:y, w:78};
+  return null;
+}
+
+/* ---------- 既定の見本(初回起動で1つ動く配置・実物物理で検証済) ---------- */
+function buildDefault(){
+  gadgets=[];
+  worldTall=false; worldBottom=H; camY=0;
+  spawn={x:48,y:26};
+  gadgets.push({type:'ramp', x:135, y:150, len:240, thick:13, ang:16});
+  gadgets.push({type:'ramp', x:300, y:255, len:170, thick:13, ang:28});
+  gadgets.push({type:'goal', x:372, y:H-4, w:96});
+  sel=null;
+  rebuildWorld(false);
+}
+
+/* ---------- 入力(つくる) ---------- */
+function hitGadget(g,x,y){
+  if(g.type==='goal'){ return Math.abs(x-g.x)<g.w/2+8 && Math.abs(y-g.y)<28; }
+  if(g.type==='fan'){ return x>g.x-g.w/2&&x<g.x+g.w/2&&y>g.y-g.h/2&&y<g.y+g.h/2; }
+  var b=g.body; if(!b) return false;
+  return M.Bounds.contains(b.bounds,{x:x,y:y}) && pointNear(g,x,y);
+}
+function pointNear(g,x,y){
+  if(g.type==='domino'){ return Math.abs(x-g.x)<14 && y>g.y-g.h-10 && y<g.y+10; }
+  if(g.type==='ramp'||g.type==='seesaw'){ return distToBody(g,x,y)<18; }
+  return true;
+}
+function distToBody(g,x,y){ var b=g.body; var v=b.vertices, best=1e9;
+  for(var i=0;i<v.length;i++){ var j=(i+1)%v.length; best=Math.min(best,distSeg(x,y,v[i].x,v[i].y,v[j].x,v[j].y)); } return best; }
+function distSeg(px,py,x1,y1,x2,y2){ var dx=x2-x1,dy=y2-y1,L=dx*dx+dy*dy||1; var tt=((px-x1)*dx+(py-y1)*dy)/L; tt=tt<0?0:(tt>1?1:tt);
+  return Math.hypot(px-(x1+tt*dx), py-(y1+tt*dy)); }
+function pickGadget(x,y){ for(var i=gadgets.length-1;i>=0;i--){ if(hitGadget(gadgets[i],x,y)) return gadgets[i]; } return null; }
+
+function onDown(x,y){
+  if(mode!=='build') return;
+  if(tool==='erase'){ erasing=true; eraseAt(x,y); return; }
+  if(tool==='spawn'){ spawn={x:x,y:y}; sel=null; renderSliders(); return; }
+  if(Math.hypot(x-spawn.x,y-spawn.y)<18){ dragging={spawn:true}; sel=null; renderSliders(); return; }
+  var g=pickGadget(x,y);
+  if(g){ sel=g; dragging=g; dragDX=x-g.x; dragDY=y-g.y; renderSliders(); return; }
+  var ng=newGadget(tool,x,y); if(ng){ gadgets.push(ng); makeBodies(ng,false); sel=ng; dragging=ng; dragDX=0; dragDY=0; renderSliders(); }
+}
+function onMove(x,y){
+  if(erasing){ eraseAt(x,y); return; }
+  if(!dragging) return;
+  if(dragging.spawn){ spawn.x=clamp(x,6,W-6); spawn.y=clamp(y,6,H-6); return; }
+  dragging.x=clamp(x-dragDX,10,W-10); dragging.y=clamp(y-dragDY,10,H-10);
+  rebuildGadget(dragging);
+}
+function onUp(){ dragging=null; erasing=false; }
+function eraseAt(x,y){ var g=pickGadget(x,y); if(g){ if(sel===g)sel=null; clearBodies(g); gadgets.splice(gadgets.indexOf(g),1); renderSliders(); } }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+/* ---------- あそぶ ---------- */
+function enterPlay(){ mode='play'; simActive=true; rebuildWorld(true); accum=0; }
+function enterBuild(){ mode='build'; simActive=false; rebuildWorld(false); }
+function dropBall(){
+  audioOn();
+  var _T=window.__T||{};
+  var b=Bodies.circle(spawn.x, spawn.y+12, 8, {restitution:(_T.ballR!=null?_T.ballR:0.2), friction:0.05, frictionAir:0.004, density:(_T.ballD!=null?_T.ballD:0.016)});
+  b.gk='ball'; Composite.add(world,b); balls.push(b);
+}
+function resetPlay(){ rebuildWorld(true); }
+
+/* ---------- おまかせ ----------
+   ・縦に長いジグザグの装置(仕掛け10個以上)を生成。玉を追ってカメラがスクロールし、最後にゴール。
+   ・probeで「一番下のゴールに到達(=全段を通った証拠)」を確認した配置だけ見せる。
+   ・不成立なら見本にフォールバック=壊れた配置は絶対に出さない。 */
+function jit(v,a){ return v + (rnd()*2-1)*a; }
+function rampBetween(x1,y1,x2,y2){
+  return {type:'ramp', x:(x1+x2)/2, y:(y1+y2)/2, len:Math.hypot(x2-x1,y2-y1), thick:13,
+          ang:Math.atan2(y2-y1,x2-x1)*180/Math.PI};
+}
+/* 画面を左右に往復しながら降りる長いジグザグ。
+   ・各坂は壁の55px手前で終える(低端=折り返し点)
+   ・次の坂の高端は壁寄り(15px)まで40px延ばして、前段から転がり落ちる玉を受ける+26px下(GAP)
+   これで玉が壁の角に挟まらず乗り移る(折り返しをシミュで確定した幾何)。 */
+function tmplLongAt(N, Adeg){
+  var leftHigh=15, rightHigh=W-15, leftTurn=55, rightTurn=W-55, cx=W/2;
+  var g=[], y=62, dir=1, A=Adeg*Math.PI/180;
+  var sp={x:leftHigh+42, y:12};           // 玉は最初の坂の内側に落ちる(端でない)
+  for(var i=0;i<N;i++){
+    var hx = dir>0? leftHigh : rightHigh; // 高端=壁寄り
+    var lx = dir>0? rightTurn : leftTurn; // 低端=反対側の折り返し点(壁55px手前)
+    var drop=Math.abs(lx-hx)*Math.tan(A);
+    g.push(rampBetween(hx, y, lx, y+drop));
+    y=y+drop+26; dir=-dir;                // GAP=26で次段を下に、次段の高端はこの折り返し側の壁寄り
+  }
+  // 最後にV字の受け皿(両壁から中央へ2本)=どこに落ちても中央ゴールへ集める
+  var Vdrop=(cx-leftHigh)*Math.tan(15*Math.PI/180);
+  g.push(rampBetween(leftHigh, y, cx, y+Vdrop));
+  g.push(rampBetween(rightHigh, y, cx, y+Vdrop));
+  g.push({type:'goal', x:cx, y:y+Vdrop, w:104});
+  return {label:'long', gadgets:g, spawn:sp, wb:y+Vdrop+90, gadgetCount:g.length-1};
+}
+
+/* 候補を実際に走らせて評価(ゴール到達・仕掛け接触・水平移動・所要ステップ) */
+function probeLayout(maxSteps){
+  clearBalls(); dropBall();
+  var b=balls[0]; if(!b) return {ok:false};
+  var minx=b.position.x, maxx=b.position.x, touchedRamp=false, moved=false, reached=false, steps=0;
+  for(var i=0;i<maxSteps;i++){ steps=i;
+    stepWorld();
+    if(!balls.length) break;
+    var p=balls[0].position; if(p.x<minx)minx=p.x; if(p.x>maxx)maxx=p.x;
+    for(var k=0;k<gadgets.length;k++){ var g=gadgets[k];
+      if(g.type==='ramp' && g.body && distToBody(g,p.x,p.y)<14) touchedRamp=true;
+      if(g.type==='domino' && g.body && Math.abs(g.body.angle)>0.6) moved=true;
+      if(g.type==='seesaw' && g.body && Math.abs(g.body.angle)>0.08) moved=true;
+      if(g.type==='fan' && p.x>g.x-g.w/2&&p.x<g.x+g.w/2&&p.y>g.y-g.h/2&&p.y<g.y+g.h/2) moved=true;
+      if(g.type==='goal' && g.hit) reached=true;
+    }
+    if(reached) break;
+  }
+  // 長い装置では「一番下のゴールに到達=全段を通った」ことが十分な証拠(真下落下はhdispで排除)
+  return { ok:reached && touchedRamp && (maxx-minx)>=110 && steps>=140,
+           reached:reached, hdisp:Math.round(maxx-minx), touchedRamp:touchedRamp, moved:moved, steps:steps };
+}
+function shuffledAngles(){                 // 16.8〜18.6°を0.15°刻みでシャッフル(通る角度を探す・変化を出す)
+  var list=[]; for(var a=168;a<=186;a+=1.5) list.push(a/10);
+  for(var i=list.length-1;i>0;i--){ var j=(rnd()*(i+1))|0; var t=list[i]; list[i]=list[j]; list[j]=t; }
+  return list;
+}
+function tryLayout(c){ gadgets.forEach(clearBodies); gadgets=c.gadgets; spawn=c.spawn; worldBottom=c.wb; rebuildWorld(true); return probeLayout(7500).ok; }
+function randomLayout(){
+  simActive=true; boardReady=true; worldTall=true;
+  var Ns=[8,9,10], chosen=null;             // 坂8〜10枚(=仕掛け10〜12個)。枚数が多いほど失敗しやすいので上限10
+  for(var tn=0; tn<3 && !chosen; tn++){
+    var N=Ns[(rnd()*Ns.length)|0];
+    var angs=shuffledAngles();
+    for(var ai=0; ai<angs.length && !chosen; ai++){
+      var c=tmplLongAt(N, angs[ai]);
+      if(tryLayout(c)) chosen=c;            // 通った配置を採用(掃引で必ず見つかる)
+    }
+  }
+  if(!chosen){ buildDefault(); simActive=true; }   // 保険=見本(必ず動く)へ
+  else { gadgets.forEach(clearBodies); gadgets=chosen.gadgets; spawn=chosen.spawn; worldBottom=chosen.wb; }
+  rebuildWorld(true); camY=0; sel=null; renderSliders();
+  setTimeout(dropBall, 350);
+}
+var _seed=20260726;
+function rnd(){ _seed=(_seed*1103515245+12345)&0x7fffffff; return _seed/0x7fffffff; }
+
+/* ---------- 保存(スロット)・共有コード ---------- */
+var SLOT_N=6, SLOT_KEY='shikumi_slot_', saveMode=false;
+function r2(v){ return v; }   // 完全精度で保存(長い自動生成の繊細な折り返しも厳密に再現)
+function serialize(){
+  var o={v:1, wt:worldTall?1:0, wb:r2(worldBottom), sp:[r2(spawn.x),r2(spawn.y)], g:[]};
+  for(var i=0;i<gadgets.length;i++){ var gd=gadgets[i];
+    if(gd.type==='ramp') o.g.push(['r',r2(gd.x),r2(gd.y),r2(gd.len),r2(gd.ang),r2(gd.thick||13)]);
+    else if(gd.type==='domino') o.g.push(['d',r2(gd.x),r2(gd.y),r2(gd.w),r2(gd.h)]);
+    else if(gd.type==='seesaw') o.g.push(['e',r2(gd.x),r2(gd.y),r2(gd.len)]);
+    else if(gd.type==='fan') o.g.push(['f',r2(gd.x),r2(gd.y),r2(gd.w),r2(gd.h),r2(gd.dir),+((gd.power||1).toFixed(1))]);
+    else if(gd.type==='goal') o.g.push(['g',r2(gd.x),r2(gd.y),r2(gd.w)]);
+  }
+  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }catch(e){ return ''; }
+}
+function deserialize(code){
+  try{ var o=JSON.parse(decodeURIComponent(escape(atob((code||'').trim())))); if(!o||!o.g||!o.sp) return null;
+    var gs=[]; for(var i=0;i<o.g.length;i++){ var a=o.g[i];
+      if(a[0]==='r') gs.push({type:'ramp',x:a[1],y:a[2],len:a[3],ang:a[4],thick:a[5]||13});
+      else if(a[0]==='d') gs.push({type:'domino',x:a[1],y:a[2],w:a[3],h:a[4]});
+      else if(a[0]==='e') gs.push({type:'seesaw',x:a[1],y:a[2],len:a[3]});
+      else if(a[0]==='f') gs.push({type:'fan',x:a[1],y:a[2],w:a[3],h:a[4],dir:a[5],power:a[6]});
+      else if(a[0]==='g') gs.push({type:'goal',x:a[1],y:a[2],w:a[3]});
+    }
+    return {gadgets:gs, spawn:{x:o.sp[0],y:o.sp[1]}, worldTall:!!o.wt, worldBottom:o.wb||H};
+  }catch(e){ return null; }
+}
+function applyLayout(d){
+  if(!d||!d.gadgets||!d.gadgets.length) return false;
+  gadgets.forEach(clearBodies); gadgets=d.gadgets; spawn.x=d.spawn.x; spawn.y=d.spawn.y;
+  worldTall=d.worldTall; worldBottom=d.worldBottom||H; boardReady=true; camY=0; sel=null;
+  rebuildWorld(simActive); renderSliders(); updateWorldUI(); return true;
+}
+function slotCode(i){ try{ return localStorage.getItem(SLOT_KEY+i); }catch(e){ return null; } }
+function toast(msg){ var el=document.getElementById('saveModeLbl'); if(!el)return; el.textContent=' '+msg;
+  clearTimeout(toast._t); toast._t=setTimeout(function(){ el.textContent=saveMode?' ('+t('save_mode')+')':''; },1500); }
+function renderSlots(){
+  var host=document.getElementById('slotSeg'); if(!host)return; host.innerHTML='';
+  for(var i=1;i<=SLOT_N;i++){ (function(i){
+    var filled=!!slotCode(i), c=document.createElement('div');
+    c.className='chip'+(filled?' on':''); c.innerHTML='<span class="em">'+(filled?'●':'○')+'</span>'+i;
+    c.addEventListener('click',function(){
+      if(saveMode){ try{ localStorage.setItem(SLOT_KEY+i, serialize()); }catch(e){} toast(i+t('saved_to')); renderSlots(); }
+      else if(filled){ if(!applyLayout(deserialize(slotCode(i)))) toast(t('code_bad')); }
+    });
+    host.appendChild(c);
+  })(i); }
+}
+function refreshCode(){ var a=document.getElementById('codeArea'); if(a) a.value=serialize(); }
+
+/* ---------- 扇風機の力場・ゴール判定 ---------- */
+function applyFans(){
+  for(var f=0;f<gadgets.length;f++){ var g=gadgets[f]; if(g.type!=='fan') continue;
+    var fa=g.dir*Math.PI/180, fx=Math.cos(fa)*g.power*0.0006, fy=-Math.sin(fa)*g.power*0.0006;
+    for(var b=0;b<balls.length;b++){ var p=balls[b].position;
+      if(p.x>g.x-g.w/2&&p.x<g.x+g.w/2&&p.y>g.y-g.h/2&&p.y<g.y+g.h/2){ Body.applyForce(balls[b],p,{x:fx,y:fy}); } } }
+}
+function checkGoals(){
+  for(var i=0;i<gadgets.length;i++){ var g=gadgets[i]; if(g.type!=='goal'||g.hit) continue;
+    for(var b=0;b<balls.length;b++){ var p=balls[b].position, v=balls[b].velocity;
+      if(Math.abs(p.x-g.x)<g.w/2-4 && p.y>g.y-18 && p.y<g.y+14 && Math.abs(v.y)<2.2){ g.hit=true; g.ring=1; playSound('chime'); break; } } }
+}
+/* 運動学シーソー: 玉が乗った側へ滑らかに傾く(±約27°)。空なら水平へ戻る。物理制約なし=爆発しない。 */
+function updateSeesaws(){
+  for(var i=0;i<gadgets.length;i++){ var g=gadgets[i]; if(g.type!=='seesaw'||!g.body) continue;
+    var net=0, hw=g.len/2;
+    for(var b=0;b<balls.length;b++){ var p=balls[b].position, dx=p.x-g.x;
+      if(Math.abs(dx)<hw+8){ var surfY=g.y+dx*Math.sin(g.curAng||0); if(Math.abs(p.y-surfY)<18) net+=dx; }
+    }
+    var target=Math.max(-0.47, Math.min(0.47, net*0.011));
+    g.curAng=(g.curAng||0)+(target-(g.curAng||0))*0.10;   // 滑らかにトゥイーン
+    Body.setAngle(g.body, g.curAng); Body.setAngularVelocity(g.body,0);
+  }
+}
+/* 玉の速度に上限(終端速度)。降下で加速しすぎて折り返しを突き抜けるのを防ぐ+眺めが穏やかに。 */
+function clampBallSpeed(){
+  var maxV=6.2;
+  for(var i=0;i<balls.length;i++){ var v=balls[i].velocity, sp=Math.hypot(v.x,v.y);
+    if(sp>maxV){ Body.setVelocity(balls[i], {x:v.x/sp*maxV, y:v.y/sp*maxV}); } }
+}
+function stepWorld(){ Engine.update(engine,FIXED); clampBallSpeed(); applyFans(); updateSeesaws(); checkGoals(); }
+
+/* ---------- 音(最小WebAudio・衝突で鳴らす) ---------- */
+var actx=null, master=null, lastSnd={};
+function audioOn(){ if(actx)return; try{ actx=new (window.AudioContext||window.webkitAudioContext)(); master=actx.createGain(); master.gain.value=volume; master.connect(actx.destination); }catch(e){} }
+function playSound(kind,vel){ if(!actx||muted)return; var now=actx.currentTime;
+  if(lastSnd[kind]&&now-lastSnd[kind]<0.025)return; lastSnd[kind]=now;
+  var o=actx.createOscillator(), g=actx.createGain(); var f=420,dur=0.07,ty='triangle',pk=0.4;
+  if(kind==='tick'){ f=520; dur=0.05; ty='square'; pk=Math.min(0.5,0.12+(vel||0)*0.03); }
+  if(kind==='roll'){ f=180; dur=0.04; ty='sine'; pk=0.12; }
+  if(kind==='chime'){ f=784; dur=0.5; ty='sine'; pk=0.4; }
+  o.type=ty; o.frequency.value=f; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(pk,now+0.005); g.gain.exponentialRampToValueAtTime(0.0001,now+dur);
+  o.connect(g); g.connect(master); o.start(now); o.stop(now+dur+0.02);
+  if(kind==='chime'){ var o2=actx.createOscillator(), g2=actx.createGain(); o2.type='sine'; o2.frequency.value=1176;
+    g2.gain.setValueAtTime(0.0001,now); g2.gain.exponentialRampToValueAtTime(0.22,now+0.01); g2.gain.exponentialRampToValueAtTime(0.0001,now+dur);
+    o2.connect(g2); g2.connect(master); o2.start(now); o2.stop(now+dur+0.02); } }
+/* トリガー式ドミノ: 立っているドミノに衝撃が当たった瞬間、閾値を超えていれば動的化して倒す。
+   倒れやすさは形で決まる: 必要衝撃 = 4×(あつみ/たかさ)。細長いほど軽く倒れ、太く短いほど強い当たりが要る。 */
+function wakeDomino(g, fromX, impact, factor){
+  if(!g||!g.body||!g.body.isStatic) return;
+  var need = 2.5 * (g.w / g.h) * (factor==null?1:factor);   // 標準8×40=0.5(軽く倒れる)・太い16×40=1.0・細長5×60≈0.21。factor0=無条件(連鎖)
+  if(impact < need) return;                    // 衝撃不足: コツンと当たっただけでは倒れない
+  Body.setStatic(g.body,false);
+  var dir=(g.body.position.x>=fromX)?1:-1;
+  // 玉の運動量は受け取らない(吹っ飛び防止)が、実物の「根元を支点に倒れ込む」を再現するため前方へ小さく並進
+  // (Matterの回転は重心中心なので、並進が無いと先端の届く距離が実物より短く連鎖が途切れる)
+  Body.setVelocity(g.body,{x:dir*0.7,y:0});
+  // 倒しきるのに必要な角速度は形で変わる(重心を支点の真上まで持ち上げる回転)。標準8×40=0.06基準でスケール。
+  var dh=(Math.hypot(g.w,g.h)-g.h)/2;
+  var kick=0.06*Math.sqrt(dh/(g.w*g.w+g.h*g.h))/Math.sqrt(0.4/1664);
+  if(factor===0) kick*=1.7;   // 連鎖経由: 倒れ込む勢いを再現(wake時に並進を殺す分を補う)=連鎖が途切れない
+  Body.setAngularVelocity(g.body, dir*kick);
+  playSound('tick',2);
+}
+Events.on(engine,'collisionStart',function(ev){
+  for(var i=0;i<ev.pairs.length;i++){ var a=ev.pairs[i].bodyA, b=ev.pairs[i].bodyB;
+    var rel=Math.hypot((a.velocity.x-b.velocity.x),(a.velocity.y-b.velocity.y));
+    // 玉→立っているドミノ(厚み/高さの衝撃judge) / 倒れ中ドミノ→立っているドミノ(倒れかかりは押し続けるので無条件=連鎖が確実)
+    if(b.gk==='domino' && b.isStatic && a.gk==='ball') wakeDomino(b.gref, a.position.x, rel, 1);
+    else if(b.gk==='domino' && b.isStatic && a.gk==='domino' && !a.isStatic) wakeDomino(b.gref, a.position.x, 999, 0);
+    else if(a.gk==='domino' && a.isStatic && b.gk==='ball') wakeDomino(a.gref, b.position.x, rel, 1);
+    else if(a.gk==='domino' && a.isStatic && b.gk==='domino' && !b.isStatic) wakeDomino(a.gref, b.position.x, 999, 0);
+    var involvesBall=(a.gk==='ball'||b.gk==='ball');
+    var dom=(a.gk==='domino'||b.gk==='domino');
+    if(dom && rel>1.2){ playSound('tick',rel); }
+    else if(involvesBall && rel>2.5){ playSound('roll'); }
+  }
+});
+
+/* ---------- BGM(Web Audio合成・明るいループ・全ページで再生・効果音とは独立) ---------- */
+var bgmGain=null, bgmVol=1.0, bgmTimer=null, bgmStep=0, bgmNextT=0;
+var BGM_STEP=60/112/2;   // BPM112の8分音符
+/* 8小節ループ(C→Am→F→G ×2)・0=休符・数値=MIDIノート */
+var BGM_MEL=[72,0,76,0,79,0,76,79, 81,0,79,76,74,0,72,0, 69,0,72,0,76,0,72,76, 74,0,76,74,71,0,67,0,
+             72,0,76,0,79,0,81,79, 84,0,81,79,76,0,74,0, 72,74,76,0,79,0,76,0, 74,0,71,74,72,0,0,0];
+var BGM_BAS=[48,0,55,0,48,0,55,0, 45,0,52,0,45,0,52,0, 41,0,48,0,41,0,48,0, 43,0,50,0,43,0,50,0,
+             48,0,55,0,48,0,55,0, 45,0,52,0,45,0,52,0, 41,0,48,0,41,0,48,0, 43,0,50,0,43,0,50,0];
+function midiHz(n){ return 440*Math.pow(2,(n-69)/12); }
+function bgmNote(freq,t,dur,type,peak,filt){
+  var o=actx.createOscillator(), g=actx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  if(filt){ var f=actx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=filt; o.connect(f); f.connect(g); }
+  else { o.connect(g); }
+  g.connect(bgmGain); o.start(t); o.stop(t+dur+0.02);
+}
+function bgmSchedule(step,t){
+  var m=BGM_MEL[step]; if(m) bgmNote(midiHz(m),t,0.2,'square',0.12,2200);
+  var b=BGM_BAS[step]; if(b) bgmNote(midiHz(b),t,0.24,'triangle',0.22);
+}
+function bgmTick(){
+  if(!actx||!bgmGain) return;
+  while(bgmNextT<actx.currentTime+0.35){
+    if(bgmVol>0) bgmSchedule(bgmStep,bgmNextT);
+    bgmStep=(bgmStep+1)%BGM_MEL.length; bgmNextT+=BGM_STEP;
+  }
+}
+function bgmStart(){
+  if(!actx||bgmTimer) return;
+  bgmGain=actx.createGain(); bgmGain.gain.value=bgmVol*0.4; bgmGain.connect(actx.destination);
+  bgmStep=0; bgmNextT=actx.currentTime+0.1;
+  bgmTimer=setInterval(bgmTick,120);
+}
+function setBgmVol(v){ bgmVol=v; if(bgmGain) bgmGain.gain.value=v*0.4; try{ localStorage.setItem('shikumi_bgm',String(v)); }catch(e){} }
+
+/* ---------- 描画 ---------- */
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save(); ctx.translate(0,-camY);      // カメラ: 表示位置を縦にずらす
+  var top=camY, bot=camY+H;
+  ctx.globalAlpha=0.06; ctx.strokeStyle='#7fd4ff'; ctx.lineWidth=1;
+  for(var gx=0;gx<W;gx+=45){ ctx.beginPath(); ctx.moveTo(gx,top); ctx.lineTo(gx,bot); ctx.stroke(); }
+  ctx.globalAlpha=1;
+  for(var i=0;i<gadgets.length;i++){ drawGadget(gadgets[i]); }
+  drawSpawn();
+  for(var b=0;b<balls.length;b++){ var p=balls[b].position;
+    ctx.beginPath(); ctx.arc(p.x,p.y,8,0,7); ctx.fillStyle='#7fd4ff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x-2.4,p.y-2.8,2.8,0,7); ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fill(); }
+  if(mode==='build' && sel){ drawHalo(sel); }
+  ctx.restore();
+  // スクロール中の深さ表示(画面右端の小さなバー)
+  var camMax=Math.max(0, worldBottom-H);
+  if(camMax>4){ var fh=H*H/(worldBottom), fy=(camY/(camMax))*(H-fh);
+    ctx.fillStyle='rgba(127,212,255,.18)'; ctx.fillRect(W-4,0,3,H);
+    ctx.fillStyle='rgba(127,212,255,.7)'; ctx.fillRect(W-4,fy,3,fh); }
+}
+function fillPoly(b,col){ var v=b.vertices; ctx.beginPath(); ctx.moveTo(v[0].x,v[0].y);
+  for(var i=1;i<v.length;i++) ctx.lineTo(v[i].x,v[i].y); ctx.closePath(); ctx.fillStyle=col; ctx.fill(); }
+function drawGadget(g){
+  if(g.type==='ramp'){ if(g.body) fillPoly(g.body,'#cfe6ff'); }
+  else if(g.type==='domino'){ if(g.body){ var upright=Math.abs(Math.cos(g.body.angle))>0.7; fillPoly(g.body, upright?'#eaf4ff':'#aebfd4'); } }
+  else if(g.type==='seesaw'){ if(g.body){ fillPoly(g.body,'#ffd98a');
+      ctx.fillStyle='#8a6a2e'; ctx.beginPath(); ctx.moveTo(g.x-10,g.y+20); ctx.lineTo(g.x+10,g.y+20); ctx.lineTo(g.x,g.y+2); ctx.closePath(); ctx.fill(); } }
+  else if(g.type==='fan'){ ctx.save(); ctx.strokeStyle='rgba(127,212,255,.5)'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
+      ctx.strokeRect(g.x-g.w/2,g.y-g.h/2,g.w,g.h); ctx.setLineDash([]);
+      var fa=g.dir*Math.PI/180, ax=Math.cos(fa)*18, ay=-Math.sin(fa)*18;
+      ctx.strokeStyle='#7fd4ff'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(g.x-ax,g.y-ay); ctx.lineTo(g.x+ax,g.y+ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(g.x+ax,g.y+ay); ctx.lineTo(g.x+ax-ay*0.4-ax*0.3,g.y+ay+ax*0.4-ay*0.3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(g.x+ax,g.y+ay); ctx.lineTo(g.x+ax+ay*0.4-ax*0.3,g.y+ay-ax*0.4-ay*0.3); ctx.stroke(); ctx.restore(); }
+  else if(g.type==='goal'){ var hw=g.w/2;
+      ctx.strokeStyle='#7ee0a8'; ctx.lineWidth=4; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(g.x-hw,g.y-24); ctx.lineTo(g.x-hw,g.y+8); ctx.lineTo(g.x+hw,g.y+8); ctx.lineTo(g.x+hw,g.y-24); ctx.stroke();
+      ctx.fillStyle='rgba(126,224,168,.12)'; ctx.fillRect(g.x-hw,g.y-24,g.w,32);
+      if(g.ring>0){ ctx.globalAlpha=g.ring; ctx.strokeStyle='#fff2a8'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(g.x,g.y-6,(1-g.ring)*40+10,0,7); ctx.stroke(); ctx.globalAlpha=1; } }
+}
+function drawSpawn(){ ctx.save(); ctx.translate(spawn.x,spawn.y); ctx.strokeStyle='#7ee0a8'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(0,0,12,0,7); ctx.stroke(); ctx.fillStyle='rgba(126,224,168,.25)'; ctx.beginPath(); ctx.arc(0,0,12,0,7); ctx.fill(); ctx.restore(); }
+function drawHalo(g){ ctx.save(); ctx.strokeStyle='rgba(127,212,255,.9)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  if(g.type==='fan'){ ctx.strokeRect(g.x-g.w/2-4,g.y-g.h/2-4,g.w+8,g.h+8); }
+  else if(g.type==='goal'){ ctx.strokeRect(g.x-g.w/2-4,g.y-28,g.w+8,40); }
+  else { var rr=(g.type==='ramp'||g.type==='seesaw')?g.len/2+10:26; ctx.beginPath(); ctx.arc(g.x,g.y-(g.type==='domino'?g.h/2:0),rr,0,7); ctx.stroke(); }
+  ctx.restore(); }
+
+/* ---------- スライダー ---------- */
+function renderSliders(){
+  var host=document.getElementById('sliders'); if(!host)return; host.innerHTML='';
+  document.getElementById('toolHint').innerHTML=t('hint_'+tool);
+  if(!sel)return;
+  function add(labelKey,min,max,step,val,cb,unit){
+    var lab=document.createElement('div'); lab.className='slabel';
+    var s1=document.createElement('span'); s1.textContent=t(labelKey);
+    var s2=document.createElement('span'); s2.textContent=Math.round(val)+(unit||'');
+    lab.appendChild(s1); lab.appendChild(s2);
+    var inp=document.createElement('input'); inp.type='range'; inp.min=min; inp.max=max; inp.step=step; inp.value=val;
+    inp.addEventListener('input',function(){ var v=parseFloat(inp.value); s2.textContent=Math.round(v)+(unit||''); cb(v); rebuildGadget(sel); });
+    host.appendChild(lab); host.appendChild(inp);
+  }
+  if(sel.type==='ramp'){ add('s_len',60,220,2,sel.len,function(v){sel.len=v;}); add('s_ang',-45,45,1,sel.ang,function(v){sel.ang=v;},'°'); }
+  else if(sel.type==='seesaw'){ add('s_len',80,190,2,sel.len,function(v){sel.len=v;}); }
+  else if(sel.type==='domino'){ add('s_size',30,64,1,sel.h,function(v){sel.h=v;}); add('s_thick',5,20,1,sel.w,function(v){sel.w=v;}); }
+  else if(sel.type==='fan'){ add('s_dir',0,360,5,sel.dir,function(v){sel.dir=v;},'°'); add('s_power',1,3,0.2,sel.power*1,function(v){sel.power=v;}); }
+  else if(sel.type==='goal'){ add('s_size',56,120,2,sel.w,function(v){sel.w=v;}); }
+}
+
+/* ---------- メインループ ---------- */
+var ringDecay=0;
+function updateCamera(){
+  var camMax=Math.max(0, worldBottom - H);
+  if(mode==='play' && balls.length){
+    var fy=balls[0].position.y; for(var b=1;b<balls.length;b++) fy=Math.max(fy,balls[b].position.y);
+    var target=Math.max(0, Math.min(camMax, fy - H*0.42));
+    camY += (target - camY)*0.12;                 // 玉を追って滑らかにスクロール
+  } else if(mode!=='build'){ camY += (0 - camY)*0.2; }  // あそぶで玉なし: 上へ戻す(つくる中は手動位置を維持)
+  camY=Math.max(0, Math.min(camMax, camY));
+}
+/* たかさスライダーと▲▼ボタンの表示を現在の世界の高さに同期 */
+function updateWorldUI(){
+  var wh=document.getElementById('worldH'); if(!wh) return;
+  var v=Math.max(1, Math.min(10, Math.round(worldBottom/H)||1));
+  wh.value=v; document.getElementById('worldHVal').textContent=v;
+  document.getElementById('scrollBtns').style.display=(mode==='build' && worldBottom>H+4)?'':'none';
+}
+function frame(){
+  requestAnimationFrame(frame);
+  if(simActive){
+    accum+=speed;
+    var guard=0;
+    while(accum>=1 && guard<4){ stepWorld(); accum-=1; guard++; }
+    for(var i=0;i<gadgets.length;i++){ if(gadgets[i].type==='goal'&&gadgets[i].ring>0) gadgets[i].ring-=0.02; }
+    // 場外/停止で溜まりすぎた玉を掃除(床下に落ちたもの)
+    for(var b=balls.length-1;b>=0;b--){ if(balls[b].position.y>worldBottom+60){ Composite.remove(world,balls[b]); balls.splice(b,1); } }
+  }
+  updateCamera();
+  draw();
+}
+
+/* ---------- UI ---------- */
+function setMode(m){ document.getElementById('mBuild').classList.toggle('on',m==='build');
+  document.getElementById('mPlay').classList.toggle('on',m==='play');
+  document.getElementById('buildPanel').classList.toggle('on',m==='build');
+  document.getElementById('playPanel').classList.toggle('on',m==='play');
+  if(m==='play') enterPlay(); else enterBuild(); sel=null; renderSliders(); updateWorldUI(); }
+function bind(){
+  document.getElementById('startBtn').addEventListener('click',function(){ document.getElementById('start').style.display='none'; audioOn(); bgmStart(); layout(); });
+  document.getElementById('homeBtn').addEventListener('click',function(){ clearBalls(); document.getElementById('start').style.display=''; });
+  document.getElementById('mBuild').addEventListener('click',function(){ setMode('build'); });
+  document.getElementById('mPlay').addEventListener('click',function(){ setMode('play'); });
+  var chips=document.querySelectorAll('#toolSeg .chip');
+  chips.forEach(function(c){ c.addEventListener('click',function(){ chips.forEach(function(x){x.classList.remove('on');}); c.classList.add('on'); tool=c.getAttribute('data-tool'); sel=null; renderSliders(); }); });
+  document.getElementById('clearBtn').addEventListener('click',function(){ gadgets.forEach(clearBodies); gadgets=[]; clearBalls(); worldTall=false; worldBottom=H; camY=0; sel=null; renderSliders(); updateWorldUI(); });
+  var whs=document.getElementById('worldH');
+  whs.addEventListener('input',function(){ var v=parseInt(whs.value);
+    worldTall=(v>1); worldBottom=H*v; rebuildWorld(simActive); updateWorldUI(); });
+  document.getElementById('scrUp').addEventListener('click',function(){ camY=Math.max(0, camY-H*0.5); });
+  document.getElementById('scrDown').addEventListener('click',function(){ camY=Math.min(Math.max(0,worldBottom-H), camY+H*0.5); });
+  var saveModeBtn=document.getElementById('saveModeBtn');
+  saveModeBtn.addEventListener('click',function(){ saveMode=!saveMode; saveModeBtn.classList.toggle('primary',saveMode);
+    document.getElementById('saveModeLbl').textContent=saveMode?' ('+t('save_mode')+')':''; });
+  document.getElementById('codeToggle').addEventListener('click',function(){ var box=document.getElementById('codeBox');
+    var show=(box.style.display==='none'); box.style.display=show?'':'none'; if(show) refreshCode(); });
+  document.getElementById('copyBtn').addEventListener('click',function(){ var code=serialize(); var a=document.getElementById('codeArea'); a.value=code;
+    try{ if(navigator.clipboard) navigator.clipboard.writeText(code); }catch(e){} try{ a.focus(); a.select(); }catch(e){} toast(t('code_copied')); });
+  document.getElementById('pasteBtn').addEventListener('click',function(){ var a=document.getElementById('codeArea');
+    var d=deserialize(a.value); if(d&&applyLayout(d)) toast(t('loaded')); else toast(t('code_bad')); });
+  document.getElementById('dropBtn').addEventListener('click',dropBall);
+  document.getElementById('resetBtn').addEventListener('click',resetPlay);
+  var sp=document.getElementById('speed'); sp.addEventListener('input',function(){ speed=parseFloat(sp.value); document.getElementById('speedVal').textContent=speed.toFixed(1)+'×'; });
+  var vl=document.getElementById('vol'); vl.addEventListener('input',function(){ volume=parseInt(vl.value)/100; muted=(volume===0); if(master)master.gain.value=volume; document.getElementById('volVal').textContent=vl.value; });
+  var bg=document.getElementById('bgm');
+  try{ var bv=localStorage.getItem('shikumi_bgm'); if(bv!=null){ bgmVol=parseFloat(bv)||0; bg.value=bgmVol; } }catch(e){}
+  document.getElementById('bgmVal').textContent=bgmVol.toFixed(1)+'×';
+  bg.addEventListener('input',function(){ var v=parseFloat(bg.value); setBgmVol(v); document.getElementById('bgmVal').textContent=v.toFixed(1)+'×'; });
+  cv.addEventListener('pointerdown',function(e){ e.preventDefault(); var p=toLogical(e.clientX,e.clientY); onDown(p.x,p.y); cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove',function(e){ if(dragging||erasing){ var p=toLogical(e.clientX,e.clientY); onMove(p.x,p.y); } });
+  cv.addEventListener('pointerup',onUp); cv.addEventListener('pointercancel',onUp);
+  window.addEventListener('resize',layout);
+}
+
+/* ---------- 起動 ---------- */
+lang=detectLang();
+buildLangSelect(document.querySelector('[data-langhost]'));
+applyLang(lang); bind(); layout(); renderSliders(); renderSlots();
+requestAnimationFrame(frame);
+
+window.Shikumi={ get gadgets(){return gadgets;}, get balls(){return balls;}, engine:engine, Matter:M,
+  step:function(n){ n=n||1; for(var i=0;i<n;i++){ stepWorld(); } },
+  draw:draw, dropBall:dropBall, setMode:setMode, enterPlay:enterPlay, resetPlay:resetPlay,
+  buildDefault:buildDefault, applyLang:applyLang, LANGS:LANGS,
+  get spawn(){return spawn;}, get worldBottom(){return worldBottom;}, get camY(){return camY;},
+  serialize:serialize, deserialize:deserialize, applyLayout:applyLayout,
+  _setLayout:function(gs,sp,wb){ gadgets.forEach(clearBodies); gadgets=gs; spawn.x=sp.x; spawn.y=sp.y; worldBottom=wb; worldTall=true; simActive=true; rebuildWorld(true); } };
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+<!-- Farcaster Mini App SDK・読み込み完了を通知しスプラッシュを閉じる(Farcaster外では無害にスキップ)🔴web側専用 -->
+<script type="module">
+  try {
+    const { sdk } = await import("https://esm.sh/@farcaster/miniapp-sdk");
+    await sdk.actions.ready();
+  } catch (e) { /* Farcaster外では何もしない */ }
+</script>
+</body>
+</html>

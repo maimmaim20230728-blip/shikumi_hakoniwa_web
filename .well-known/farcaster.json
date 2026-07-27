@@ -1,0 +1,27 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjMzMzkzMTUsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2RGYyOTIyRjc4OUVmMTFmNjk3NDREMEZkYWZCNDhmN2VhNjRmYTExIn0",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "仕組みの箱庭",
+    "iconUrl": "https://shikumi-hakoniwa-web.vercel.app/icons/icon-512.png",
+    "homeUrl": "https://shikumi-hakoniwa-web.vercel.app/",
+    "imageUrl": "https://shikumi-hakoniwa-web.vercel.app/icons/fc-card-3x2.png",
+    "buttonTitle": "⚙️ ひらく / Open",
+    "splashImageUrl": "https://shikumi-hakoniwa-web.vercel.app/icons/icon-512.png",
+    "splashBackgroundColor": "#0e1622",
+    "subtitle": "玉をゴールへ届けるからくりの箱庭",
+    "description": "坂・ドミノ・シーソー・扇風機を置いて、玉をゴールへ。本物の2D物理で連鎖するからくりを組んで眺める箱庭。完全オフライン・匿名・端末内のみ・広告なし・12言語。",
+    "primaryCategory": "games",
+    "tags": [
+      "physics",
+      "sandbox",
+      "contraption",
+      "chainreaction",
+      "soyogi"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "仕組みの箱庭",
+  "short_name": "仕組みの箱庭",
+  "description": "仕掛けを組んで玉をゴールへ届ける、連鎖反応(からくり)の箱庭。坂やドミノ、シーソー、扇風機を置いて、玉が次々に動くしくみを作る。端末の中だけで動く。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1622",
+  "theme_color": "#0e1622",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
