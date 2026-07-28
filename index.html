@@ -593,8 +593,8 @@ function onDown(x,y){
 function onMove(x,y){
   if(erasing){ eraseAt(x,y); return; }
   if(!dragging) return;
-  if(dragging.spawn){ spawn.x=clamp(x,6,W-6); spawn.y=clamp(y,6,H-6); return; }
-  dragging.x=clamp(x-dragDX,10,W-10); dragging.y=clamp(y-dragDY,10,H-10);
+  if(dragging.spawn){ spawn.x=clamp(x,6,W-6); spawn.y=clamp(y,6,worldBottom-6); return; }  // 🔴Hでなくworldbottom=縦長世界のどこにでも置ける
+  dragging.x=clamp(x-dragDX,10,W-10); dragging.y=clamp(y-dragDY,10,worldBottom-10);
   rebuildGadget(dragging);
 }
 function onUp(){ dragging=null; erasing=false; }
