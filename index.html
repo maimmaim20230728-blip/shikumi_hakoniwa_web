@@ -607,7 +607,7 @@ function enterBuild(){ mode='build'; simActive=false; rebuildWorld(false); }
 function dropBall(){
   audioOn();
   var _T=window.__T||{};
-  var b=Bodies.circle(spawn.x, spawn.y+12, 8, {restitution:(_T.ballR!=null?_T.ballR:0.2), friction:0.05, frictionAir:0.004, density:(_T.ballD!=null?_T.ballD:0.016)});
+  var b=Bodies.circle(spawn.x, spawn.y+12, 8, {restitution:(_T.ballR!=null?_T.ballR:0.55), friction:0.05, frictionAir:0.004, density:(_T.ballD!=null?_T.ballD:0.016)});
   b.gk='ball'; Composite.add(world,b); balls.push(b);
 }
 function resetPlay(){ rebuildWorld(true); }
@@ -766,7 +766,7 @@ function updateSeesaws(){
 }
 /* 玉の速度に上限(終端速度)。降下で加速しすぎて折り返しを突き抜けるのを防ぐ+眺めが穏やかに。 */
 function clampBallSpeed(){
-  var maxV=6.2;
+  var maxV=13;
   for(var i=0;i<balls.length;i++){ var v=balls[i].velocity, sp=Math.hypot(v.x,v.y);
     if(sp>maxV){ Body.setVelocity(balls[i], {x:v.x/sp*maxV, y:v.y/sp*maxV}); } }
 }
