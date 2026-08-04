@@ -484,12 +484,15 @@ function makeBodies(g, dynamic){
     var hw=g.w/2;
     g.wallL=tag(Bodies.rectangle(g.x-hw,g.y-8,6,34,{isStatic:true,friction:0.3}),'goalw',g);
     g.wallR=tag(Bodies.rectangle(g.x+hw,g.y-8,6,34,{isStatic:true,friction:0.3}),'goalw',g);
-    Composite.add(world,[g.wallL,g.wallR]);
+    // 底(受け皿)。左右の壁だけだと空中に置いた時に玉が下へ突き抜ける(床置きは世界の床が受けるので気づかない)。
+    // 🔴厚み16px: 玉の速度上限13px/tickなので薄い底(6px)は1stepで通り抜ける(トンネリング)
+    g.wallB=tag(Bodies.rectangle(g.x,g.y+16,g.w+6,16,{isStatic:true,friction:0.3,chamfer:{radius:2}}),'goalw',g);
+    Composite.add(world,[g.wallL,g.wallR,g.wallB]);
     g.hit=false; g.ring=0;
   }
 }
 function clearBodies(g){
-  ['body','body2','cons','wallL','wallR'].forEach(function(k){ if(g[k]){ Composite.remove(world,g[k]); g[k]=null; } });
+  ['body','body2','cons','wallL','wallR','wallB'].forEach(function(k){ if(g[k]){ Composite.remove(world,g[k]); g[k]=null; } });
 }
 function rebuildGadget(g){ clearBodies(g); makeBodies(g, simActive && dynType(g.type)); }
 function dynType(tp){ return false; }  // ドミノ=トリガー式(静的→接触で動的化)・シーソー=運動学。常時動的で生成する型はない
@@ -509,7 +512,7 @@ function rebuildWorld(dynamic){
   walls=[]; buildWalls();
   clearBalls();
   for(var i=0;i<gadgets.length;i++){
-    ['body','body2','cons','wallL','wallR'].forEach(function(k){ gadgets[i][k]=null; });
+    ['body','body2','cons','wallL','wallR','wallB'].forEach(function(k){ gadgets[i][k]=null; });
     makeBodies(gadgets[i], dynamic && dynType(gadgets[i].type));
     if(gadgets[i].type==='goal'){ gadgets[i].hit=false; gadgets[i].ring=0; }
   }
@@ -711,7 +714,7 @@ function deserialize(code){
       if(a[0]==='r') gs.push({type:'ramp',x:a[1],y:a[2],len:a[3],ang:a[4],thick:a[5]||13});
       else if(a[0]==='d') gs.push({type:'domino',x:a[1],y:a[2],w:a[3],h:a[4]});
       else if(a[0]==='e') gs.push({type:'seesaw',x:a[1],y:a[2],len:a[3]});
-      else if(a[0]==='f') gs.push({type:'fan',x:a[1],y:a[2],w:a[3],h:a[4],dir:a[5],power:a[6]});
+      else if(a[0]==='f') gs.push({type:'fan',x:a[1],y:a[2],w:a[3],h:a[4],dir:a[5],power:Math.max(1,Math.min(15,+a[6]||1))});
       else if(a[0]==='g') gs.push({type:'goal',x:a[1],y:a[2],w:a[3]});
     }
     return {gadgets:gs, spawn:{x:o.sp[0],y:o.sp[1]}, worldTall:!!o.wt, worldBottom:o.wb||H};
@@ -920,7 +923,9 @@ function renderSliders(){
   if(sel.type==='ramp'){ add('s_len',60,220,2,sel.len,function(v){sel.len=v;}); add('s_ang',-45,45,1,sel.ang,function(v){sel.ang=v;},'°'); }
   else if(sel.type==='seesaw'){ add('s_len',80,190,2,sel.len,function(v){sel.len=v;}); }
   else if(sel.type==='domino'){ add('s_size',30,64,1,sel.h,function(v){sel.h=v;}); add('s_thick',5,20,1,sel.w,function(v){sel.w=v;}); }
-  else if(sel.type==='fan'){ add('s_dir',0,360,5,sel.dir,function(v){sel.dir=v;},'°'); add('s_power',1,3,0.2,sel.power*1,function(v){sel.power=v;}); }
+  // 強さ1〜15: 玉は重め(density0.016・質量≈3.2)なので旧上限3では重力の約0.56倍までしか押せず
+  // 「弱い」との指摘(2026-08-04ヒロ)。15で重力の約2.8倍=真上にも吹き上げられる。旧作品(1〜3)は同じ動きのまま
+  else if(sel.type==='fan'){ add('s_dir',0,360,5,sel.dir,function(v){sel.dir=v;},'°'); add('s_power',1,15,0.5,sel.power*1,function(v){sel.power=v;}); }
   else if(sel.type==='goal'){ add('s_size',56,120,2,sel.w,function(v){sel.w=v;}); }
 }
 
