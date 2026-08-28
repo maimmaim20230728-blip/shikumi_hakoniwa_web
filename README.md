@@ -22,5 +22,5 @@ node serve.js 3103  … ポート指定
 
 ## ライセンス・クレジット
 
-介護と支援の相談どころ「そよぎ」 https://soyogi.hp.peraichi.com/top
+介護と支援の相談どころ「そよぎ」 https://soudansoyogi.com/
 物理エンジンに Matter.js (MIT) を同梱しています。
