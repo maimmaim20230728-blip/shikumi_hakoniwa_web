@@ -86,6 +86,14 @@
   #scrollBtns button{width:46px;height:46px;border-radius:12px;font-size:18px;color:var(--ink);
     background:rgba(27,48,73,.85);border:1px solid var(--edge);cursor:pointer;}
   #scrollBtns button:active{transform:translateY(1px);}
+  /* 確かめの窓(Play版だけ・Android の戻るボタン・askBox・2026-09-30)。タイトルやパネルより上 */
+  .ask-ov{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:rgba(4,10,18,.62);}
+  .ask-box{background:var(--panel);color:var(--ink);border:1px solid var(--edge);border-radius:16px;
+    padding:20px 16px 16px;width:min(100%,380px);box-shadow:0 10px 30px rgba(0,0,0,.45);}
+  .ask-msg{margin:0 0 16px;font-size:16px;font-weight:700;line-height:1.7;overflow-wrap:anywhere;}
+  .ask-row{display:flex;gap:8px;}
+  .ask-row .act{flex:1;min-height:50px;}
 </style>
 </head>
 <body>
@@ -199,7 +207,8 @@ var I18N = { ja:{
   s_len:'長さ', s_ang:'かたむき', s_dir:'向き', s_power:'強さ', s_size:'大きさ', s_num:'数',
   saved:'保存したしくみ', save_mode:'保存する', load_mode:'よびだす', code_share:'共有コード',
   code_hint:'このコードを送れば、同じしくみを他の人が再現できます。', copy:'コピー', paste_load:'はりつけて読む',
-  saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ' },
+  saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ',
+  ask_title:'タイトルにもどりますか？ 玉は消えます。しくみはそのまま残ります。', yes:'はい', no:'いいえ' },
 en:{
   subtitle:'Build a contraption and send the ball to the goal.<br>Place ramps, dominoes, seesaws and fans so that one thing sets off the next.',
   start:'Start', dev_credit:'Care & support consultation service',
@@ -218,7 +227,8 @@ en:{
   s_len:'Length', s_ang:'Tilt', s_dir:'Direction', s_power:'Strength', s_size:'Size', s_num:'Count',
   saved:'Saved builds', save_mode:'Save', load_mode:'Load', code_share:'Share code',
   code_hint:'Send this code and someone else can rebuild the same contraption.', copy:'Copy', paste_load:'Paste & load',
-  saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness' },
+  saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness',
+  ask_title:'Go back to the title? The balls will disappear. Your build stays as it is.', yes:'Yes', no:'No' },
 de:{
   subtitle:'Baue eine Maschine und bring die Kugel ins Ziel.<br>Stelle Rampen, Dominos, Wippen und Ventilatoren auf, damit eines das nächste auslöst.',
   start:'Starten', dev_credit:'Beratungsstelle für Pflege und Unterstützung',
@@ -237,7 +247,8 @@ de:{
   s_len:'Länge', s_ang:'Neigung', s_dir:'Richtung', s_power:'Stärke', s_size:'Größe', s_num:'Anzahl',
   saved:'Gespeicherte Aufbauten', save_mode:'Speichern', load_mode:'Laden', code_share:'Teilen-Code',
   code_hint:'Schicke diesen Code, dann kann jemand anderes den gleichen Aufbau nachbauen.', copy:'Kopieren', paste_load:'Einfügen & laden',
-  saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke' },
+  saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke',
+  ask_title:'Zurück zum Titel? Die Kugeln verschwinden. Dein Aufbau bleibt erhalten.', yes:'Ja', no:'Nein' },
 fr:{
   subtitle:"Construis un mécanisme et amène la bille jusqu'au but.<br>Place des rampes, des dominos, des bascules et des ventilateurs pour que tout s'enchaîne.",
   start:'Commencer', dev_credit:'Service de conseil en soins et accompagnement',
@@ -256,7 +267,8 @@ fr:{
   s_len:'Longueur', s_ang:'Inclinaison', s_dir:'Direction', s_power:'Force', s_size:'Taille', s_num:'Nombre',
   saved:'Montages enregistrés', save_mode:'Enregistrer', load_mode:'Charger', code_share:'Code à partager',
   code_hint:'Envoie ce code et une autre personne pourra reconstruire le même montage.', copy:'Copier', paste_load:'Coller et charger',
-  saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur' },
+  saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur',
+  ask_title:'Revenir au titre ? Les billes disparaissent. Ton montage reste tel quel.', yes:'Oui', no:'Non' },
 es:{
   subtitle:'Construye un mecanismo y lleva la bola a la meta.<br>Coloca rampas, fichas de dominó, balancines y ventiladores para encadenar el movimiento.',
   start:'Empezar', dev_credit:'Servicio de consulta sobre cuidados y apoyo',
@@ -275,7 +287,8 @@ es:{
   s_len:'Largo', s_ang:'Inclinación', s_dir:'Dirección', s_power:'Fuerza', s_size:'Tamaño', s_num:'Cantidad',
   saved:'Montajes guardados', save_mode:'Guardar', load_mode:'Cargar', code_share:'Código para compartir',
   code_hint:'Envía este código y otra persona podrá reproducir el mismo montaje.', copy:'Copiar', paste_load:'Pegar y cargar',
-  saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor' },
+  saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor',
+  ask_title:'¿Volver al inicio? Las bolas desaparecen. Tu montaje se queda como está.', yes:'Sí', no:'No' },
 it:{
   subtitle:'Costruisci un meccanismo e porta la pallina al traguardo.<br>Metti rampe, domino, altalene e ventilatori per far partire una reazione a catena.',
   start:'Inizia', dev_credit:'Servizio di consulenza su cura e sostegno',
@@ -294,7 +307,8 @@ it:{
   s_len:'Lunghezza', s_ang:'Inclinazione', s_dir:'Direzione', s_power:'Forza', s_size:'Dimensione', s_num:'Numero',
   saved:'Costruzioni salvate', save_mode:'Salva', load_mode:'Carica', code_share:'Codice da condividere',
   code_hint:'Invia questo codice e un altro potrà ricreare la stessa costruzione.', copy:'Copia', paste_load:'Incolla e carica',
-  saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore' },
+  saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore',
+  ask_title:"Tornare al titolo? Le palline spariscono. La tua costruzione resta com'è.", yes:'Sì', no:'No' },
 pt:{
   subtitle:'Monte um mecanismo e leve a bola até a meta.<br>Coloque rampas, dominós, gangorras e ventiladores para uma coisa acionar a outra.',
   start:'Começar', dev_credit:'Serviço de consulta sobre cuidados e apoio',
@@ -313,7 +327,8 @@ pt:{
   s_len:'Comprimento', s_ang:'Inclinação', s_dir:'Direção', s_power:'Força', s_size:'Tamanho', s_num:'Quantidade',
   saved:'Montagens salvas', save_mode:'Salvar', load_mode:'Carregar', code_share:'Código para compartilhar',
   code_hint:'Envie este código e outra pessoa poderá refazer a mesma montagem.', copy:'Copiar', paste_load:'Colar e carregar',
-  saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura' },
+  saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura',
+  ask_title:'Voltar ao início? As bolas somem. Sua montagem continua como está.', yes:'Sim', no:'Não' },
 nl:{
   subtitle:'Bouw een mechaniek en breng de bal naar de finish.<br>Zet hellingen, domino’s, wippen en ventilatoren neer zodat het één het ander in gang zet.',
   start:'Starten', dev_credit:'Advies- en ondersteuningspunt voor zorg',
@@ -332,7 +347,8 @@ nl:{
   s_len:'Lengte', s_ang:'Helling', s_dir:'Richting', s_power:'Kracht', s_size:'Grootte', s_num:'Aantal',
   saved:'Opgeslagen bouwsels', save_mode:'Opslaan', load_mode:'Laden', code_share:'Deelcode',
   code_hint:'Stuur deze code en iemand anders kan hetzelfde bouwsel namaken.', copy:'Kopiëren', paste_load:'Plakken en laden',
-  saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte' },
+  saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte',
+  ask_title:'Terug naar de titel? De ballen verdwijnen. Je bouwsel blijft zoals het is.', yes:'Ja', no:'Nee' },
 sv:{
   subtitle:'Bygg en maskin och få kulan till målet.<br>Placera ramper, dominobrickor, gungbrädor och fläktar så att det ena sätter igång det andra.',
   start:'Starta', dev_credit:'Rådgivning om vård och stöd',
@@ -351,7 +367,8 @@ sv:{
   s_len:'Längd', s_ang:'Lutning', s_dir:'Riktning', s_power:'Styrka', s_size:'Storlek', s_num:'Antal',
   saved:'Sparade byggen', save_mode:'Spara', load_mode:'Ladda', code_share:'Delningskod',
   code_hint:'Skicka koden så kan någon annan bygga exakt samma sak.', copy:'Kopiera', paste_load:'Klistra in och ladda',
-  saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek' },
+  saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek',
+  ask_title:'Tillbaka till startsidan? Kulorna försvinner. Ditt bygge blir kvar som det är.', yes:'Ja', no:'Nej' },
 ko:{
   subtitle:'장치를 만들어 공을 골까지 보내세요.<br>경사·도미노·시소·선풍기를 놓아 차례차례 움직이는 구조를 만들어 보세요.',
   start:'시작하기', dev_credit:'돌봄과 지원 상담소',
@@ -370,7 +387,8 @@ ko:{
   s_len:'길이', s_ang:'기울기', s_dir:'방향', s_power:'세기', s_size:'크기', s_num:'개수',
   saved:'저장한 장치', save_mode:'저장하기', load_mode:'불러오기', code_share:'공유 코드',
   code_hint:'이 코드를 보내면 다른 사람이 같은 장치를 그대로 만들 수 있습니다.', copy:'복사', paste_load:'붙여넣어 읽기',
-  saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께' },
+  saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께',
+  ask_title:'타이틀로 돌아갈까요? 공은 사라집니다. 장치는 그대로 남습니다.', yes:'네', no:'아니요' },
 zh:{
   subtitle:'搭建装置，把小球送到终点。<br>放置斜坡、多米诺、跷跷板和风扇，做出一个接一个动起来的机关。',
   start:'开始', dev_credit:'介护与支援咨询处',
@@ -389,7 +407,8 @@ zh:{
   s_len:'长度', s_ang:'倾斜', s_dir:'方向', s_power:'强度', s_size:'大小', s_num:'数量',
   saved:'已保存的机关', save_mode:'保存', load_mode:'读取', code_share:'分享代码',
   code_hint:'把这个代码发给别人，就能还原出同样的机关。', copy:'复制', paste_load:'粘贴读取',
-  saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度' },
+  saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度',
+  ask_title:'返回标题吗？小球会消失，机关会原样保留。', yes:'是', no:'否' },
 ar:{
   subtitle:'اصنع آلة وأوصل الكرة إلى الهدف.<br>ضع المنحدرات وأحجار الدومينو والأرجوحة والمراوح لتتحرك واحدة تلو الأخرى.',
   start:'ابدأ', dev_credit:'مركز استشارات الرعاية والدعم',
@@ -408,7 +427,8 @@ ar:{
   s_len:'الطول', s_ang:'الميل', s_dir:'الاتجاه', s_power:'القوة', s_size:'الحجم', s_num:'العدد',
   saved:'التركيبات المحفوظة', save_mode:'حفظ', load_mode:'تحميل', code_share:'رمز المشاركة',
   code_hint:'أرسل هذا الرمز ليتمكن شخص آخر من إعادة بناء التركيب نفسه.', copy:'نسخ', paste_load:'لصق وتحميل',
-  saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة' } };
+  saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة',
+  ask_title:'هل تريد العودة إلى العنوان؟ ستختفي الكرات، ويبقى التركيب كما هو.', yes:'نعم', no:'لا' } };
 var LANGS=['ja','en','de','fr','es','it','pt','nl','sv','ko','zh','ar'];
 var LABELS={ja:'日本語',en:'English',de:'Deutsch',fr:'Français',es:'Español',it:'Italiano',pt:'Português',nl:'Nederlands',sv:'Svenska',ko:'한국어',zh:'中文',ar:'العربية'};
 var lang='ja';
@@ -1003,10 +1023,59 @@ function bind(){
   window.addEventListener('resize',layout);
 }
 
+/* ---------- Android の戻るボタン(Play版だけ・2026-09-30) ----------
+   @capacitor/app が無いと、戻るでアプリごと後ろに下がっていた(Android 11 以前は閉じる=保存していないしくみも消える)。
+   押したときの順: ①確かめの窓 → いいえ
+                  ②つくる・あそぶ → 「タイトルにもどる」と同じ(しくみはそのまま・玉は消える)。
+                    あそぶで玉が出ているときは、先に確かめの窓(いいえ=そのまま)
+                  ③タイトル → アプリを後ろに下げる(minimizeApp。中身はそのまま)
+   🔴 プラグインはネイティブが注入する Capacitor.Plugins.App を使う(registerPlugin は WebView に無い)。
+   Web版(ブラウザ)は何も変えない(戻るはブラウザのまま) */
+function isNativeApp(){ try{ var c=window.Capacitor; return !!(c && typeof c.isNativePlatform==='function' && c.isNativePlatform()); }catch(e){ return false; } }
+function nativePlugin(name,fn){
+  if(!isNativeApp()) return null;
+  try{ var c=window.Capacitor;
+    if(typeof c.isPluginAvailable==='function' && !c.isPluginAvailable(name)) return null;
+    var p=c.Plugins && c.Plugins[name]; return (p && typeof p[fn]==='function') ? p : null;
+  }catch(e){ return null; }
+}
+function minimizeApp(){ var ap=nativePlugin('App','minimizeApp'); try{ if(ap){ var p=ap.minimizeApp(); if(p && p.catch) p.catch(function(){}); } }catch(e){} }
+/* 確かめの窓: Play版の window.confirm は Capacitor(BridgeWebChromeClient)がボタンを英語の OK / Cancel に決め打ちしている。
+   Play版だけ、アプリの中に「いいえ / はい」(yes / no・12言語)の窓を出す。Web版は window.confirm。done(true=はい / false=いいえ) */
+function askBox(msg,done){
+  if(!isNativeApp()){ var r=false; try{ r=!!window.confirm(msg); }catch(e){} done(r); return; }
+  var ov=document.createElement('div'); ov.className='ask-ov'; ov.setAttribute('role','alertdialog'); ov.setAttribute('aria-modal','true');
+  var box=document.createElement('div'); box.className='ask-box';
+  var p=document.createElement('p'); p.className='ask-msg'; p.textContent=msg;
+  var row=document.createElement('div'); row.className='ask-row';
+  var no=document.createElement('button'); no.type='button'; no.className='act ask-no'; no.textContent=t('no');
+  var yes=document.createElement('button'); yes.type='button'; yes.className='act primary ask-yes'; yes.textContent=t('yes');
+  var closed=false;
+  function close(v){ if(closed)return; closed=true; if(ov.parentNode) ov.parentNode.removeChild(ov); done(v); }
+  no.addEventListener('click',function(){ close(false); });
+  yes.addEventListener('click',function(){ close(true); });
+  row.appendChild(no); row.appendChild(yes); box.appendChild(p); box.appendChild(row); ov.appendChild(box);
+  document.body.appendChild(ov);
+  try{ no.focus(); }catch(e){}
+}
+function onBack(){
+  var ask=document.querySelector('.ask-ov');
+  if(ask){ var an=ask.querySelector('.ask-no'); if(an) an.click(); return; }
+  if(document.getElementById('start').style.display!=='none'){ minimizeApp(); return; }
+  var home=document.getElementById('homeBtn');
+  if(mode==='play' && balls.length){ askBox(t('ask_title'), function(ok){ if(ok) home.click(); }); return; }
+  home.click();
+}
+function watchBack(){
+  var ap=nativePlugin('App','addListener'); if(!ap) return;
+  try{ ap.addListener('backButton',function(){ onBack(); }); }catch(e){}
+}
+
 /* ---------- 起動 ---------- */
 lang=detectLang();
 buildLangSelect(document.querySelector('[data-langhost]'));
 applyLang(lang); bind(); layout(); renderSliders(); renderSlots();
+watchBack();   // Android の戻るボタン(Play版だけ)
 requestAnimationFrame(frame);
 
 window.Shikumi={ get gadgets(){return gadgets;}, get balls(){return balls;}, engine:engine, Matter:M,
