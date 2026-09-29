@@ -94,6 +94,33 @@
   .ask-msg{margin:0 0 16px;font-size:16px;font-weight:700;line-height:1.7;overflow-wrap:anywhere;}
   .ask-row{display:flex;gap:8px;}
   .ask-row .act{flex:1;min-height:50px;}
+  /* はじめての あそびかた(openGuide・2026-09-30)。タイトル・盤面・操作パネルより上に全画面(確かめの窓よりは下)。
+     html/body は touch-action:none なので、案内の中だけ縦にスクロールできるようにする(pan-y)。
+     ボタンは下に固定した帯(地の色つき=長いページでも本文が透けない)。本文の下の余白は帯より高くする */
+  .guide-ov{position:fixed;inset:0;z-index:90;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;background:var(--bg);color:var(--ink);
+    padding:calc(20px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(124px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));}
+  .guide-box{max-width:520px;margin:0 auto;}
+  .guide-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;}
+  .guide-title{margin:0;font-size:15px;font-weight:700;color:var(--mizu);}
+  .guide-step{margin:0;font-size:15px;font-weight:700;color:var(--sub);white-space:nowrap;unicode-bidi:isolate;}
+  .guide-lang{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:12px 0 0;font-size:14px;color:var(--sub);}
+  .guide-lang select{min-height:44px;background:var(--btn);color:var(--ink);border:1px solid var(--edge);border-radius:10px;padding:6px 12px;font-size:15px;}
+  .guide-h{margin:16px 0 10px;font-size:21px;line-height:1.45;color:var(--ink);overflow-wrap:anywhere;}
+  .guide-h:focus{outline:none;}
+  .guide-p{margin:0;font-size:16.5px;line-height:1.85;color:var(--ink);white-space:pre-line;overflow-wrap:anywhere;}
+  .guide-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px;}
+  .guide-dot{width:10px;height:10px;border-radius:50%;background:var(--line);}
+  .guide-dot.on{background:var(--mizu);}
+  .guide-row{position:fixed;left:0;right:0;bottom:0;z-index:1;display:flex;gap:10px;background:var(--panel);border-top:1px solid var(--line);
+    padding:10px max(16px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));}
+  .guide-row .act{flex:1 1 0;min-width:0;min-height:56px;font-size:17px;}
+  /* タイトルの ことば の となりの「？ あそびかた」(案内を もう一度 見る)。タイトルの高さが増えないよう ことば と同じ行に置く */
+  #startRow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;}
+  #guideBtn{min-height:44px;padding:6px 10px;background:var(--btn);color:var(--ink);border:1px solid var(--edge);border-radius:10px;
+    font-size:14px;cursor:pointer;white-space:nowrap;}
+  #guideBtn:active{transform:translateY(1px);}
+  /* 小さい画面(盤面が低い)では、足した「？ あそびかた」のぶん(ことば の行が 8px 高くなる)タイトルの すき間を詰めて、下のクレジットに重ねない */
+  @media (max-height:620px),(max-width:348px){ #start{gap:6px;} }
 </style>
 </head>
 <body>
@@ -109,7 +136,10 @@
         <div id="title">仕組みの箱庭</div>
         <div id="subtitle" data-i18n="subtitle">仕掛けを組んで、玉をゴールへ。<br>坂・ドミノ・シーソー・扇風機を置いて、次々に動くしくみを作ろう。</div>
         <button id="startBtn" data-i18n="start">はじめる</button>
-        <div id="startLang" data-langhost></div>
+        <div id="startRow">
+          <div id="startLang" data-langhost></div>
+          <button id="guideBtn" type="button"><span aria-hidden="true">？ </span><span data-i18n="g_title">あそびかた</span></button>
+        </div>
         <div class="credit">
           <span data-i18n="dev_credit">介護と支援の相談どころ</span>
           <a href="https://soudansoyogi.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">そよぎ</a>
@@ -208,7 +238,19 @@ var I18N = { ja:{
   saved:'保存したしくみ', save_mode:'保存する', load_mode:'よびだす', code_share:'共有コード',
   code_hint:'このコードを送れば、同じしくみを他の人が再現できます。', copy:'コピー', paste_load:'はりつけて読む',
   saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ',
-  ask_title:'タイトルにもどりますか？ 玉は消えます。しくみはそのまま残ります。', yes:'はい', no:'いいえ' },
+  ask_title:'タイトルにもどりますか？ 玉は消えます。しくみはそのまま残ります。', yes:'はい', no:'いいえ',
+  /* はじめての あそびかた(2026-09-30・下の openGuide)。g_heads / g_bodies の {キー} は、同じ言語のこの表の文字に置きかわる */
+  g_title:'あそびかた', g_prev:'まえ', g_next:'つぎ',
+  g_heads:['仕組みの箱庭へ ようこそ', '{m_build}: 仕掛けを置く', '{m_play}: 玉をおとす', '高いしくみを作る', '保存と共有コード', '音と、この端末の中だけ', 'タイトルと この あそびかた'],
+  g_bodies:[
+    '坂・ドミノ・シーソー・扇風機を置いて、玉をゴールへ届けるしくみを作るあそびです。\n玉もドミノも、本物の物理で転がり、倒れます。時間制限や失敗はありません。',
+    '「{m_build}」で「{t_ramp}」「{t_domino}」「{t_seesaw}」「{t_fan}」「{t_goal}」などを選び、画面をタップすると置けます。「{t_spawn}」は、玉が落ちてくる場所です。\n置いた仕掛けは、指で押さえたまま動かせます。選んだ仕掛けは、下のつまみで長さや かたむきなどを変えられます。\nまちがえたら「{t_erase}」を選んでタップします。「{clear_all}」で すべて消せます。',
+    '「{m_play}」にして「{drop}」を押すと、「{t_spawn}」から玉が落ちます。仕掛けに当たると次々に動き、ゴールに入ると光と音で知らせます。\n「{reset}」で玉を消して、最初の形にもどします。「{speed}」のつまみで、動きをゆっくりにも速くにもできます。',
+    '「{world_h}」のつまみで、しくみを縦に最大10画面分まで長くできます。「{m_build}」のときは、右下の ▲ ▼ で上下に動かせます。\n「{m_play}」では、画面が玉を追って動きます。',
+    '「{save_mode}」を押してから 1〜6 の番号を押すと、そこに保存されます。よびだすときは、もう一度「{save_mode}」を押して保存をやめてから、● の番号を押します。保存していないしくみは、アプリを閉じると消えます。\n「{code_share}」を開くと、しくみが文字のコードになります。「{copy}」したコードを送れば、ほかの人も同じしくみを作れます。読むときは、「{code_share}」の欄の文字を消してコードをはりつけ、「{paste_load}」を押します。',
+    '「{m_play}」の「{volume}」と「{bgm}」のつまみで、音の大きさを変えられます。\n保存したしくみは この端末の中だけに残り、どこにも送られません。登録もいりません。\nスマホを変えるときは、「{copy}」したコードを新しいスマホに送り、同じように「{paste_load}」で読むと、同じしくみを使えます。',
+    '「{to_title}」で、いつでもタイトルにもどれます。しくみは そのまま残ります。\nこの あそびかたは、タイトルの ことば の となりの「{g_title}」で いつでも見られます。'
+  ] },
 en:{
   subtitle:'Build a contraption and send the ball to the goal.<br>Place ramps, dominoes, seesaws and fans so that one thing sets off the next.',
   start:'Start', dev_credit:'Care & support consultation service',
@@ -228,7 +270,18 @@ en:{
   saved:'Saved builds', save_mode:'Save', load_mode:'Load', code_share:'Share code',
   code_hint:'Send this code and someone else can rebuild the same contraption.', copy:'Copy', paste_load:'Paste & load',
   saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness',
-  ask_title:'Go back to the title? The balls will disappear. Your build stays as it is.', yes:'Yes', no:'No' },
+  ask_title:'Go back to the title? The balls will disappear. Your build stays as it is.', yes:'Yes', no:'No',
+  g_title:'How to play', g_prev:'Previous', g_next:'Next',
+  g_heads:['Welcome to Shikumi no Hakoniwa', '{m_build}: place the parts', '{m_play}: drop the ball', 'Build a tall contraption', 'Saving and share codes', 'Sound, and it stays on this device', 'The title screen and this guide'],
+  g_bodies:[
+    'Place ramps, dominoes, seesaws and fans to build a contraption that sends the ball to the goal.\nThe ball and the dominoes roll and topple with real physics. There is no time limit and no way to fail.',
+    'In "{m_build}", choose "{t_ramp}", "{t_domino}", "{t_seesaw}", "{t_fan}", "{t_goal}" and so on, then tap the screen to place it. "{t_spawn}" is where the ball comes out.\nHold a placed part with your finger to move it. For the selected part, the sliders below change its length, tilt and more.\nIf you make a mistake, choose "{t_erase}" and tap the part. "{clear_all}" removes everything.',
+    'Switch to "{m_play}" and tap "{drop}": the ball comes out of "{t_spawn}". When it hits a part, one thing sets off the next, and a light and a sound tell you when it reaches the goal.\n"{reset}" removes the balls and puts everything back as it was. The "{speed}" slider makes the movement slower or faster.',
+    'The "{world_h}" slider makes the contraption up to 10 screens tall. In "{m_build}", the ▲ ▼ buttons at the bottom right move the view up and down.\nIn "{m_play}", the view follows the ball.',
+    'Tap "{save_mode}", then a number from 1 to 6 to save there. To load, tap "{save_mode}" again to stop saving, then tap a number marked ●. A contraption that is not saved disappears when the app is closed.\n"{code_share}" turns the contraption into a text code. Tap "{copy}" and send the code, and someone else can build the same thing. To load a code, clear the "{code_share}" box, paste the code and tap "{paste_load}".',
+    'The "{volume}" and "{bgm}" sliders in "{m_play}" change how loud the sound is.\nSaved contraptions stay only on this device and are not sent anywhere. No sign-up is needed.\nWhen you change phones, send the code copied with "{copy}" to the new phone and load it the same way with "{paste_load}" to keep the same contraption.',
+    'Tap "{to_title}" to go back to the title at any time. Your build stays as it is.\nThis guide can be seen again at any time with "{g_title}" next to the language on the title screen.'
+  ] },
 de:{
   subtitle:'Baue eine Maschine und bring die Kugel ins Ziel.<br>Stelle Rampen, Dominos, Wippen und Ventilatoren auf, damit eines das nächste auslöst.',
   start:'Starten', dev_credit:'Beratungsstelle für Pflege und Unterstützung',
@@ -248,7 +301,18 @@ de:{
   saved:'Gespeicherte Aufbauten', save_mode:'Speichern', load_mode:'Laden', code_share:'Teilen-Code',
   code_hint:'Schicke diesen Code, dann kann jemand anderes den gleichen Aufbau nachbauen.', copy:'Kopieren', paste_load:'Einfügen & laden',
   saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke',
-  ask_title:'Zurück zum Titel? Die Kugeln verschwinden. Dein Aufbau bleibt erhalten.', yes:'Ja', no:'Nein' },
+  ask_title:'Zurück zum Titel? Die Kugeln verschwinden. Dein Aufbau bleibt erhalten.', yes:'Ja', no:'Nein',
+  g_title:'Spielanleitung', g_prev:'Zurück', g_next:'Weiter',
+  g_heads:['Willkommen bei Shikumi no Hakoniwa', '{m_build}: Teile aufstellen', '{m_play}: die Kugel fallen lassen', 'Hohe Maschinen bauen', 'Speichern und Teilen-Code', 'Ton, und alles bleibt auf diesem Gerät', 'Titel und diese Anleitung'],
+  g_bodies:[
+    'Stelle Rampen, Dominos, Wippen und Ventilatoren auf und baue eine Maschine, die die Kugel ins Ziel bringt.\nKugel und Dominos rollen und kippen mit echter Physik. Es gibt kein Zeitlimit und kein Verlieren.',
+    'Wähle unter „{m_build}“ zum Beispiel „{t_ramp}“, „{t_domino}“, „{t_seesaw}“, „{t_fan}“ oder „{t_goal}“ und tippe auf den Bildschirm, um das Teil aufzustellen. „{t_spawn}“ ist die Stelle, an der die Kugel herauskommt.\nEin aufgestelltes Teil kannst du mit dem Finger festhalten und verschieben. Beim gewählten Teil ändern die Regler darunter Länge, Neigung und mehr.\nBei einem Fehler wähle „{t_erase}“ und tippe auf das Teil. „{clear_all}“ entfernt alles.',
+    'Wechsle zu „{m_play}“ und tippe auf „{drop}“: Die Kugel kommt aus „{t_spawn}“. Trifft sie ein Teil, setzt eines das nächste in Gang, und im Ziel melden sich Licht und Ton.\n„{reset}“ entfernt die Kugeln und stellt alles wie am Anfang auf. Mit dem Regler „{speed}“ läuft alles langsamer oder schneller.',
+    'Mit dem Regler „{world_h}“ wird die Maschine bis zu 10 Bildschirme hoch. Unter „{m_build}“ verschieben die Tasten ▲ ▼ unten rechts die Ansicht nach oben und unten.\nUnter „{m_play}“ folgt die Ansicht der Kugel.',
+    'Tippe auf „{save_mode}“ und dann auf eine Nummer von 1 bis 6, um dort zu speichern. Zum Laden tippe noch einmal auf „{save_mode}“, damit das Speichern aufhört, und dann auf eine Nummer mit ●. Eine nicht gespeicherte Maschine verschwindet, wenn die App geschlossen wird.\n„{code_share}“ macht aus der Maschine einen Text-Code. Tippe auf „{copy}“ und schicke den Code, dann kann jemand anderes das Gleiche bauen. Zum Einlesen leere das Feld unter „{code_share}“, füge den Code ein und tippe auf „{paste_load}“.',
+    'Die Regler „{volume}“ und „{bgm}“ unter „{m_play}“ ändern die Lautstärke.\nGespeicherte Maschinen bleiben nur auf diesem Gerät und werden nirgendwohin gesendet. Eine Anmeldung ist nicht nötig.\nBeim Wechsel des Handys schicke den mit „{copy}“ kopierten Code auf das neue Handy und lies ihn dort genauso mit „{paste_load}“ ein, dann hast du dieselbe Maschine.',
+    'Mit „{to_title}“ kommst du jederzeit zum Titel zurück. Dein Aufbau bleibt erhalten.\nDiese Anleitung kannst du jederzeit mit „{g_title}“ neben der Sprache auf dem Titel wieder ansehen.'
+  ] },
 fr:{
   subtitle:"Construis un mécanisme et amène la bille jusqu'au but.<br>Place des rampes, des dominos, des bascules et des ventilateurs pour que tout s'enchaîne.",
   start:'Commencer', dev_credit:'Service de conseil en soins et accompagnement',
@@ -268,7 +332,18 @@ fr:{
   saved:'Montages enregistrés', save_mode:'Enregistrer', load_mode:'Charger', code_share:'Code à partager',
   code_hint:'Envoie ce code et une autre personne pourra reconstruire le même montage.', copy:'Copier', paste_load:'Coller et charger',
   saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur',
-  ask_title:'Revenir au titre ? Les billes disparaissent. Ton montage reste tel quel.', yes:'Oui', no:'Non' },
+  ask_title:'Revenir au titre ? Les billes disparaissent. Ton montage reste tel quel.', yes:'Oui', no:'Non',
+  g_title:'Comment jouer', g_prev:'Précédent', g_next:'Suivant',
+  g_heads:['Bienvenue dans Shikumi no Hakoniwa', '{m_build} : placer les éléments', '{m_play} : lâcher la bille', 'Construire un mécanisme haut', 'Enregistrer et code à partager', 'Le son, et tout reste sur cet appareil', 'Le titre et cette aide'],
+  g_bodies:[
+    'Place des rampes, des dominos, des bascules et des ventilateurs pour construire un mécanisme qui amène la bille jusqu’au but.\nLa bille et les dominos roulent et tombent avec une vraie physique. Il n’y a ni limite de temps ni échec.',
+    'Dans « {m_build} », choisis par exemple « {t_ramp} », « {t_domino} », « {t_seesaw} », « {t_fan} » ou « {t_goal} », puis touche l’écran pour le placer. « {t_spawn} » est l’endroit d’où sort la bille.\nGarde le doigt sur un élément placé pour le déplacer. Pour l’élément choisi, les curseurs en dessous changent la longueur, l’inclinaison, etc.\nEn cas d’erreur, choisis « {t_erase} » et touche l’élément. « {clear_all} » enlève tout.',
+    'Passe à « {m_play} » et touche « {drop} » : la bille sort de « {t_spawn} ». Quand elle touche un élément, tout s’enchaîne, et une lumière et un son t’avertissent quand elle arrive au but.\n« {reset} » enlève les billes et remet tout comme au début. Le curseur « {speed} » rend le mouvement plus lent ou plus rapide.',
+    'Le curseur « {world_h} » rend le mécanisme haut de 10 écrans au maximum. Dans « {m_build} », les boutons ▲ ▼ en bas à droite déplacent la vue vers le haut et vers le bas.\nDans « {m_play} », la vue suit la bille.',
+    'Touche « {save_mode} », puis un numéro de 1 à 6 pour enregistrer à cet endroit. Pour charger, touche encore « {save_mode} » pour arrêter l’enregistrement, puis un numéro marqué ●. Un mécanisme non enregistré disparaît quand l’application est fermée.\n« {code_share} » transforme le mécanisme en code texte. Touche « {copy} » et envoie le code : une autre personne pourra construire le même. Pour lire un code, vide la zone de « {code_share} », colle le code, puis touche « {paste_load} ».',
+    'Les curseurs « {volume} » et « {bgm} » dans « {m_play} » règlent le volume du son.\nLes montages enregistrés restent seulement sur cet appareil et ne sont envoyés nulle part. Aucune inscription n’est nécessaire.\nSi tu changes de téléphone, envoie le code copié avec « {copy} » sur le nouveau téléphone et lis-le de la même façon avec « {paste_load} » pour garder le même montage.',
+    'Avec « {to_title} », tu reviens au titre à tout moment. Ton montage reste tel quel.\nCette aide peut être revue à tout moment avec « {g_title} », à côté de la langue sur l’écran titre.'
+  ] },
 es:{
   subtitle:'Construye un mecanismo y lleva la bola a la meta.<br>Coloca rampas, fichas de dominó, balancines y ventiladores para encadenar el movimiento.',
   start:'Empezar', dev_credit:'Servicio de consulta sobre cuidados y apoyo',
@@ -288,7 +363,18 @@ es:{
   saved:'Montajes guardados', save_mode:'Guardar', load_mode:'Cargar', code_share:'Código para compartir',
   code_hint:'Envía este código y otra persona podrá reproducir el mismo montaje.', copy:'Copiar', paste_load:'Pegar y cargar',
   saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor',
-  ask_title:'¿Volver al inicio? Las bolas desaparecen. Tu montaje se queda como está.', yes:'Sí', no:'No' },
+  ask_title:'¿Volver al inicio? Las bolas desaparecen. Tu montaje se queda como está.', yes:'Sí', no:'No',
+  g_title:'Cómo jugar', g_prev:'Anterior', g_next:'Siguiente',
+  g_heads:['Te damos la bienvenida a Shikumi no Hakoniwa', '{m_build}: colocar piezas', '{m_play}: soltar la bola', 'Construir un mecanismo alto', 'Guardar y código para compartir', 'El sonido, y todo se queda en este dispositivo', 'El inicio y esta guía'],
+  g_bodies:[
+    'Coloca rampas, fichas de dominó, balancines y ventiladores para construir un mecanismo que lleve la bola a la meta.\nLa bola y las fichas ruedan y caen con física de verdad. No hay límite de tiempo ni forma de perder.',
+    'En «{m_build}», elige por ejemplo «{t_ramp}», «{t_domino}», «{t_seesaw}», «{t_fan}» o «{t_goal}» y toca la pantalla para colocarlo. «{t_spawn}» es el lugar por donde sale la bola.\nMantén el dedo sobre una pieza colocada para moverla. Para la pieza elegida, los controles de abajo cambian el largo, la inclinación y más.\nSi te equivocas, elige «{t_erase}» y toca la pieza. «{clear_all}» lo quita todo.',
+    'Cambia a «{m_play}» y toca «{drop}»: la bola sale de «{t_spawn}». Al chocar con una pieza, una cosa activa la siguiente, y una luz y un sonido avisan cuando llega a la meta.\n«{reset}» quita las bolas y deja todo como al principio. El control «{speed}» hace el movimiento más lento o más rápido.',
+    'El control «{world_h}» hace el mecanismo de hasta 10 pantallas de alto. En «{m_build}», los botones ▲ ▼ abajo a la derecha mueven la vista arriba y abajo.\nEn «{m_play}», la vista sigue a la bola.',
+    'Toca «{save_mode}» y luego un número del 1 al 6 para guardar ahí. Para cargar, toca otra vez «{save_mode}» para dejar de guardar y luego un número con ●. Un mecanismo sin guardar desaparece al cerrar la app.\n«{code_share}» convierte el mecanismo en un código de texto. Toca «{copy}» y envía el código: otra persona podrá construir lo mismo. Para leer un código, borra el cuadro de «{code_share}», pega el código y toca «{paste_load}».',
+    'Los controles «{volume}» y «{bgm}» de «{m_play}» cambian el volumen del sonido.\nLos montajes guardados se quedan solo en este dispositivo y no se envían a ningún sitio. No hace falta registrarse.\nAl cambiar de teléfono, envía al teléfono nuevo el código copiado con «{copy}» y léelo de la misma forma con «{paste_load}» para tener el mismo montaje.',
+    'Con «{to_title}» vuelves al inicio cuando quieras. Tu montaje se queda como está.\nEsta guía se puede ver de nuevo en cualquier momento con «{g_title}», junto al idioma en la pantalla de inicio.'
+  ] },
 it:{
   subtitle:'Costruisci un meccanismo e porta la pallina al traguardo.<br>Metti rampe, domino, altalene e ventilatori per far partire una reazione a catena.',
   start:'Inizia', dev_credit:'Servizio di consulenza su cura e sostegno',
@@ -308,7 +394,18 @@ it:{
   saved:'Costruzioni salvate', save_mode:'Salva', load_mode:'Carica', code_share:'Codice da condividere',
   code_hint:'Invia questo codice e un altro potrà ricreare la stessa costruzione.', copy:'Copia', paste_load:'Incolla e carica',
   saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore',
-  ask_title:"Tornare al titolo? Le palline spariscono. La tua costruzione resta com'è.", yes:'Sì', no:'No' },
+  ask_title:"Tornare al titolo? Le palline spariscono. La tua costruzione resta com'è.", yes:'Sì', no:'No',
+  g_title:'Come si gioca', g_prev:'Indietro', g_next:'Avanti',
+  g_heads:['Benvenuti in Shikumi no Hakoniwa', '{m_build}: posizionare i pezzi', '{m_play}: lasciar cadere la pallina', 'Costruire un meccanismo alto', 'Salvare e codice da condividere', 'Il suono, e tutto resta su questo dispositivo', 'Il titolo e questa guida'],
+  g_bodies:[
+    'Metti rampe, domino, altalene e ventilatori per costruire un meccanismo che porti la pallina al traguardo.\nPallina e domino rotolano e cadono con vera fisica. Non ci sono limiti di tempo né modi di perdere.',
+    'In «{m_build}» scegli per esempio «{t_ramp}», «{t_domino}», «{t_seesaw}», «{t_fan}» o «{t_goal}» e tocca lo schermo per posizionarlo. «{t_spawn}» è il punto da cui esce la pallina.\nTieni il dito su un pezzo posizionato per spostarlo. Per il pezzo scelto, i cursori sotto cambiano lunghezza, inclinazione e altro.\nSe sbagli, scegli «{t_erase}» e tocca il pezzo. «{clear_all}» toglie tutto.',
+    'Passa a «{m_play}» e tocca «{drop}»: la pallina esce da «{t_spawn}». Quando colpisce un pezzo parte la reazione a catena, e una luce e un suono ti avvisano quando arriva al traguardo.\n«{reset}» toglie le palline e rimette tutto com’era all’inizio. Il cursore «{speed}» rende il movimento più lento o più veloce.',
+    'Il cursore «{world_h}» rende il meccanismo alto fino a 10 schermi. In «{m_build}», i pulsanti ▲ ▼ in basso a destra spostano la vista in su e in giù.\nIn «{m_play}», la vista segue la pallina.',
+    'Tocca «{save_mode}» e poi un numero da 1 a 6 per salvare lì. Per caricare, tocca di nuovo «{save_mode}» per smettere di salvare e poi un numero con ●. Un meccanismo non salvato sparisce quando chiudi l’app.\n«{code_share}» trasforma il meccanismo in un codice di testo. Tocca «{copy}» e invia il codice: un’altra persona potrà costruire lo stesso. Per leggere un codice, svuota il riquadro di «{code_share}», incolla il codice e tocca «{paste_load}».',
+    'I cursori «{volume}» e «{bgm}» in «{m_play}» cambiano il volume del suono.\nLe costruzioni salvate restano solo su questo dispositivo e non vengono inviate da nessuna parte. Non serve registrarsi.\nQuando cambi telefono, invia al nuovo telefono il codice copiato con «{copy}» e leggilo allo stesso modo con «{paste_load}» per avere la stessa costruzione.',
+    'Con «{to_title}» torni al titolo quando vuoi. La tua costruzione resta com’è.\nPuoi rivedere questa guida in qualsiasi momento con «{g_title}», accanto alla lingua nella schermata del titolo.'
+  ] },
 pt:{
   subtitle:'Monte um mecanismo e leve a bola até a meta.<br>Coloque rampas, dominós, gangorras e ventiladores para uma coisa acionar a outra.',
   start:'Começar', dev_credit:'Serviço de consulta sobre cuidados e apoio',
@@ -328,7 +425,18 @@ pt:{
   saved:'Montagens salvas', save_mode:'Salvar', load_mode:'Carregar', code_share:'Código para compartilhar',
   code_hint:'Envie este código e outra pessoa poderá refazer a mesma montagem.', copy:'Copiar', paste_load:'Colar e carregar',
   saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura',
-  ask_title:'Voltar ao início? As bolas somem. Sua montagem continua como está.', yes:'Sim', no:'Não' },
+  ask_title:'Voltar ao início? As bolas somem. Sua montagem continua como está.', yes:'Sim', no:'Não',
+  g_title:'Como jogar', g_prev:'Anterior', g_next:'Próximo',
+  g_heads:['Boas-vindas ao Shikumi no Hakoniwa', '{m_build}: colocar as peças', '{m_play}: soltar a bola', 'Montar um mecanismo alto', 'Salvar e código para compartilhar', 'O som, e tudo fica neste aparelho', 'O início e este guia'],
+  g_bodies:[
+    'Coloque rampas, dominós, gangorras e ventiladores para montar um mecanismo que leve a bola até a meta.\nA bola e os dominós rolam e tombam com física de verdade. Não há limite de tempo nem jeito de perder.',
+    'Em «{m_build}», escolha por exemplo «{t_ramp}», «{t_domino}», «{t_seesaw}», «{t_fan}» ou «{t_goal}» e toque na tela para colocar. «{t_spawn}» é o lugar de onde sai a bola.\nSegure uma peça colocada com o dedo para movê-la. Para a peça escolhida, os controles abaixo mudam o comprimento, a inclinação e mais.\nSe errar, escolha «{t_erase}» e toque na peça. «{clear_all}» remove tudo.',
+    'Mude para «{m_play}» e toque em «{drop}»: a bola sai de «{t_spawn}». Ao bater numa peça, uma coisa aciona a outra, e uma luz e um som avisam quando ela chega à meta.\n«{reset}» remove as bolas e deixa tudo como no começo. O controle «{speed}» deixa o movimento mais lento ou mais rápido.',
+    'O controle «{world_h}» deixa o mecanismo com até 10 telas de altura. Em «{m_build}», os botões ▲ ▼ no canto inferior direito movem a vista para cima e para baixo.\nEm «{m_play}», a vista acompanha a bola.',
+    'Toque em «{save_mode}» e depois num número de 1 a 6 para salvar ali. Para carregar, toque de novo em «{save_mode}» para parar de salvar e depois num número com ●. Um mecanismo não salvo some quando o app é fechado.\n«{code_share}» transforma o mecanismo num código de texto. Toque em «{copy}» e envie o código: outra pessoa poderá montar o mesmo. Para ler um código, apague o quadro de «{code_share}», cole o código e toque em «{paste_load}».',
+    'Os controles «{volume}» e «{bgm}» em «{m_play}» mudam o volume do som.\nAs montagens salvas ficam só neste aparelho e não são enviadas para lugar nenhum. Não é preciso cadastro.\nAo trocar de celular, envie para o celular novo o código copiado com «{copy}» e leia do mesmo jeito com «{paste_load}» para ter a mesma montagem.',
+    'Com «{to_title}» você volta ao início quando quiser. Sua montagem continua como está.\nEste guia pode ser visto de novo a qualquer momento com «{g_title}», ao lado do idioma na tela de início.'
+  ] },
 nl:{
   subtitle:'Bouw een mechaniek en breng de bal naar de finish.<br>Zet hellingen, domino’s, wippen en ventilatoren neer zodat het één het ander in gang zet.',
   start:'Starten', dev_credit:'Advies- en ondersteuningspunt voor zorg',
@@ -348,7 +456,18 @@ nl:{
   saved:'Opgeslagen bouwsels', save_mode:'Opslaan', load_mode:'Laden', code_share:'Deelcode',
   code_hint:'Stuur deze code en iemand anders kan hetzelfde bouwsel namaken.', copy:'Kopiëren', paste_load:'Plakken en laden',
   saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte',
-  ask_title:'Terug naar de titel? De ballen verdwijnen. Je bouwsel blijft zoals het is.', yes:'Ja', no:'Nee' },
+  ask_title:'Terug naar de titel? De ballen verdwijnen. Je bouwsel blijft zoals het is.', yes:'Ja', no:'Nee',
+  g_title:'Speluitleg', g_prev:'Vorige', g_next:'Volgende',
+  g_heads:['Welkom bij Shikumi no Hakoniwa', '{m_build}: onderdelen neerzetten', '{m_play}: de bal loslaten', 'Een hoog mechaniek bouwen', 'Opslaan en deelcode', 'Geluid, en alles blijft op dit apparaat', 'De titel en deze uitleg'],
+  g_bodies:[
+    'Zet hellingen, domino’s, wippen en ventilatoren neer en bouw een mechaniek dat de bal naar de finish brengt.\nDe bal en de domino’s rollen en vallen met echte natuurkunde. Er is geen tijdslimiet en je kunt niet verliezen.',
+    'Kies in „{m_build}” bijvoorbeeld „{t_ramp}”, „{t_domino}”, „{t_seesaw}”, „{t_fan}” of „{t_goal}” en tik op het scherm om het neer te zetten. „{t_spawn}” is de plek waar de bal vandaan komt.\nHoud een neergezet onderdeel met je vinger vast om het te verplaatsen. Bij het gekozen onderdeel veranderen de schuiven eronder de lengte, de helling en meer.\nFout gemaakt? Kies „{t_erase}” en tik op het onderdeel. „{clear_all}” haalt alles weg.',
+    'Ga naar „{m_play}” en tik op „{drop}”: de bal komt uit „{t_spawn}”. Raakt hij een onderdeel, dan zet het één het ander in gang, en een licht en een geluid laten weten wanneer hij bij de finish is.\n„{reset}” haalt de ballen weg en zet alles terug zoals aan het begin. Met de schuif „{speed}” gaat alles langzamer of sneller.',
+    'Met de schuif „{world_h}” wordt het mechaniek tot 10 schermen hoog. In „{m_build}” schuiven de knoppen ▲ ▼ rechtsonder het beeld omhoog en omlaag.\nIn „{m_play}” volgt het beeld de bal.',
+    'Tik op „{save_mode}” en daarna op een nummer van 1 tot 6 om daar op te slaan. Om te laden tik je nog eens op „{save_mode}” zodat het opslaan stopt, en daarna op een nummer met ●. Een mechaniek dat niet is opgeslagen, verdwijnt als de app wordt gesloten.\n„{code_share}” maakt van het mechaniek een tekstcode. Tik op „{copy}” en stuur de code, dan kan iemand anders hetzelfde bouwen. Om een code in te lezen, maak je het vak bij „{code_share}” leeg, plak je de code en tik je op „{paste_load}”.',
+    'De schuiven „{volume}” en „{bgm}” in „{m_play}” regelen hoe hard het geluid is.\nOpgeslagen bouwsels blijven alleen op dit apparaat en worden nergens naartoe gestuurd. Registreren is niet nodig.\nNieuwe telefoon? Stuur de met „{copy}” gekopieerde code naar de nieuwe telefoon en lees hem daar op dezelfde manier in met „{paste_load}”, dan heb je hetzelfde bouwsel.',
+    'Met „{to_title}” ga je altijd terug naar de titel. Je bouwsel blijft zoals het is.\nDeze uitleg kun je altijd opnieuw bekijken met „{g_title}” naast de taal op het titelscherm.'
+  ] },
 sv:{
   subtitle:'Bygg en maskin och få kulan till målet.<br>Placera ramper, dominobrickor, gungbrädor och fläktar så att det ena sätter igång det andra.',
   start:'Starta', dev_credit:'Rådgivning om vård och stöd',
@@ -368,7 +487,18 @@ sv:{
   saved:'Sparade byggen', save_mode:'Spara', load_mode:'Ladda', code_share:'Delningskod',
   code_hint:'Skicka koden så kan någon annan bygga exakt samma sak.', copy:'Kopiera', paste_load:'Klistra in och ladda',
   saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek',
-  ask_title:'Tillbaka till startsidan? Kulorna försvinner. Ditt bygge blir kvar som det är.', yes:'Ja', no:'Nej' },
+  ask_title:'Tillbaka till startsidan? Kulorna försvinner. Ditt bygge blir kvar som det är.', yes:'Ja', no:'Nej',
+  g_title:'Så spelar du', g_prev:'Föregående', g_next:'Nästa',
+  g_heads:['Välkommen till Shikumi no Hakoniwa', '{m_build}: placera delarna', '{m_play}: släpp kulan', 'Bygg en hög maskin', 'Spara och delningskod', 'Ljud, och allt stannar på den här enheten', 'Startsidan och den här guiden'],
+  g_bodies:[
+    'Placera ramper, dominobrickor, gungbrädor och fläktar och bygg en maskin som får kulan till målet.\nKulan och brickorna rullar och välter med riktig fysik. Det finns ingen tidsgräns och inget sätt att förlora.',
+    'Under ”{m_build}” väljer du till exempel ”{t_ramp}”, ”{t_domino}”, ”{t_seesaw}”, ”{t_fan}” eller ”{t_goal}” och trycker på skärmen för att placera. ”{t_spawn}” är stället där kulan kommer ut.\nHåll fingret på en placerad del för att flytta den. För den valda delen ändrar reglagen under längd, lutning med mera.\nOm det blir fel, välj ”{t_erase}” och tryck på delen. ”{clear_all}” tar bort allt.',
+    'Byt till ”{m_play}” och tryck på ”{drop}”: kulan kommer ut ur ”{t_spawn}”. Träffar den en del sätter det ena igång det andra, och ett ljus och ett ljud säger till när den når målet.\n”{reset}” tar bort kulorna och ställer tillbaka allt som i början. Reglaget ”{speed}” gör rörelsen långsammare eller snabbare.',
+    'Reglaget ”{world_h}” gör maskinen upp till 10 skärmar hög. Under ”{m_build}” flyttar knapparna ▲ ▼ längst ner till höger vyn upp och ner.\nUnder ”{m_play}” följer vyn kulan.',
+    'Tryck på ”{save_mode}” och sedan på ett nummer från 1 till 6 för att spara där. För att ladda trycker du på ”{save_mode}” igen så att sparandet slutar, och sedan på ett nummer med ●. En maskin som inte är sparad försvinner när appen stängs.\n”{code_share}” gör maskinen till en textkod. Tryck på ”{copy}” och skicka koden, så kan någon annan bygga samma sak. För att läsa in en kod tömmer du rutan under ”{code_share}”, klistrar in koden och trycker på ”{paste_load}”.',
+    'Reglagen ”{volume}” och ”{bgm}” under ”{m_play}” ändrar ljudets volym.\nSparade byggen finns bara kvar på den här enheten och skickas ingenstans. Ingen registrering behövs.\nNär du byter telefon skickar du koden som du kopierat med ”{copy}” till den nya telefonen och läser in den på samma sätt med ”{paste_load}”, så får du samma bygge.',
+    'Med ”{to_title}” kommer du när som helst tillbaka till startsidan. Ditt bygge blir kvar som det är.\nDen här guiden kan du när som helst visa igen med ”{g_title}” bredvid språket på startsidan.'
+  ] },
 ko:{
   subtitle:'장치를 만들어 공을 골까지 보내세요.<br>경사·도미노·시소·선풍기를 놓아 차례차례 움직이는 구조를 만들어 보세요.',
   start:'시작하기', dev_credit:'돌봄과 지원 상담소',
@@ -388,7 +518,18 @@ ko:{
   saved:'저장한 장치', save_mode:'저장하기', load_mode:'불러오기', code_share:'공유 코드',
   code_hint:'이 코드를 보내면 다른 사람이 같은 장치를 그대로 만들 수 있습니다.', copy:'복사', paste_load:'붙여넣어 읽기',
   saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께',
-  ask_title:'타이틀로 돌아갈까요? 공은 사라집니다. 장치는 그대로 남습니다.', yes:'네', no:'아니요' },
+  ask_title:'타이틀로 돌아갈까요? 공은 사라집니다. 장치는 그대로 남습니다.', yes:'네', no:'아니요',
+  g_title:'노는 법', g_prev:'이전', g_next:'다음',
+  g_heads:['환영합니다', '{m_build}: 장치 놓기', '{m_play}: 공 떨어뜨리기', '높은 장치 만들기', '저장과 공유 코드', '소리, 그리고 이 기기 안에만', '타이틀과 이 안내'],
+  g_bodies:[
+    '경사·도미노·시소·선풍기를 놓아서 공을 골까지 보내는 장치를 만드는 놀이입니다.\n공도 도미노도 실제 물리로 구르고 넘어집니다. 시간 제한도, 실패도 없습니다.',
+    '「{m_build}」에서 「{t_ramp}」「{t_domino}」「{t_seesaw}」「{t_fan}」「{t_goal}」 등을 고르고 화면을 탭하면 놓을 수 있습니다. 「{t_spawn}」은 공이 떨어지는 곳입니다.\n놓은 장치는 손가락으로 누른 채 움직일 수 있습니다. 고른 장치는 아래 슬라이더로 길이나 기울기 등을 바꿀 수 있습니다.\n잘못 놓았으면 「{t_erase}」를 고르고 탭합니다. 「{clear_all}」로 전부 지울 수 있습니다.',
+    '「{m_play}」로 바꾸고 「{drop}」를 누르면 「{t_spawn}」에서 공이 떨어집니다. 장치에 닿으면 차례차례 움직이고, 골에 들어가면 빛과 소리로 알려 줍니다.\n「{reset}」로 공을 지우고 처음 모양으로 되돌립니다. 「{speed}」 슬라이더로 움직임을 느리게도 빠르게도 할 수 있습니다.',
+    '「{world_h}」 슬라이더로 장치를 세로로 최대 10화면까지 길게 만들 수 있습니다. 「{m_build}」에서는 오른쪽 아래의 ▲ ▼ 로 위아래로 움직일 수 있습니다.\n「{m_play}」에서는 화면이 공을 따라 움직입니다.',
+    '「{save_mode}」를 누른 다음 1~6 번호를 누르면 거기에 저장됩니다. 불러올 때는 「{save_mode}」를 한 번 더 눌러 저장을 끝낸 다음 ● 번호를 누릅니다. 저장하지 않은 장치는 앱을 닫으면 사라집니다.\n「{code_share}」를 열면 장치가 글자 코드가 됩니다. 「{copy}」한 코드를 보내면 다른 사람도 같은 장치를 만들 수 있습니다. 코드를 읽을 때는 「{code_share}」 칸의 글자를 지우고 코드를 붙여넣은 다음 「{paste_load}」를 누릅니다.',
+    '「{m_play}」의 「{volume}」과 「{bgm}」 슬라이더로 소리 크기를 바꿀 수 있습니다.\n저장한 장치는 이 기기 안에만 남고 어디에도 보내지지 않습니다. 가입도 필요 없습니다.\n휴대폰을 바꿀 때는 「{copy}」한 코드를 새 휴대폰으로 보내고, 같은 방법으로 「{paste_load}」로 읽으면 같은 장치를 쓸 수 있습니다.',
+    '「{to_title}」로 언제든지 타이틀로 돌아갈 수 있습니다. 장치는 그대로 남습니다.\n이 안내는 타이틀의 언어 옆에 있는 「{g_title}」으로 언제든지 볼 수 있습니다.'
+  ] },
 zh:{
   subtitle:'搭建装置，把小球送到终点。<br>放置斜坡、多米诺、跷跷板和风扇，做出一个接一个动起来的机关。',
   start:'开始', dev_credit:'介护与支援咨询处',
@@ -408,7 +549,18 @@ zh:{
   saved:'已保存的机关', save_mode:'保存', load_mode:'读取', code_share:'分享代码',
   code_hint:'把这个代码发给别人，就能还原出同样的机关。', copy:'复制', paste_load:'粘贴读取',
   saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度',
-  ask_title:'返回标题吗？小球会消失，机关会原样保留。', yes:'是', no:'否' },
+  ask_title:'返回标题吗？小球会消失，机关会原样保留。', yes:'是', no:'否',
+  g_title:'玩法', g_prev:'上一页', g_next:'下一页',
+  g_heads:['欢迎', '{m_build}：放置机关', '{m_play}：放下小球', '做一个高高的机关', '保存与分享代码', '声音，以及只留在这台设备上', '标题画面与这份玩法'],
+  g_bodies:[
+    '放置斜坡、多米诺、跷跷板和风扇，做出把小球送到终点的机关。\n小球和多米诺都用真实物理滚动、倒下。没有时间限制，也不会失败。',
+    '在「{m_build}」里选择「{t_ramp}」「{t_domino}」「{t_seesaw}」「{t_fan}」「{t_goal}」等，点一下画面就能放置。「{t_spawn}」是小球落下的地方。\n放好的机关可以用手指按住拖动。选中的机关可以用下面的滑块改变长度、倾斜等。\n放错了就选「{t_erase}」再点一下。「{clear_all}」可以全部清除。',
+    '切换到「{m_play}」，点「{drop}」，小球就会从「{t_spawn}」落下。碰到机关就会一个接一个动起来，进入终点时会用光和声音提示。\n「{reset}」会清除小球，回到最初的样子。用「{speed}」滑块可以让动作变慢或变快。',
+    '用「{world_h}」滑块，可以把机关纵向加长到最多 10 屏。在「{m_build}」时，可以用右下角的 ▲ ▼ 上下移动。\n在「{m_play}」时，画面会跟着小球移动。',
+    '先点「{save_mode}」，再点 1〜6 的编号，就会保存到那里。要读取时，再点一次「{save_mode}」结束保存，然后点带 ● 的编号。没有保存的机关，关闭应用后就会消失。\n打开「{code_share}」，机关会变成一串文字代码。点「{copy}」后把代码发给别人，对方就能做出同样的机关。读取代码时，先清空「{code_share}」框里的文字，粘贴代码，再点「{paste_load}」。',
+    '用「{m_play}」里的「{volume}」和「{bgm}」滑块可以调节声音大小。\n保存的机关只留在这台设备上，不会发送到任何地方。也不需要注册。\n换手机时，把用「{copy}」复制的代码发到新手机上，同样用「{paste_load}」读取，就能使用同样的机关。',
+    '点「{to_title}」随时可以回到标题画面。机关会原样保留。\n这份玩法随时可以在标题画面语言旁边的「{g_title}」里再看。'
+  ] },
 ar:{
   subtitle:'اصنع آلة وأوصل الكرة إلى الهدف.<br>ضع المنحدرات وأحجار الدومينو والأرجوحة والمراوح لتتحرك واحدة تلو الأخرى.',
   start:'ابدأ', dev_credit:'مركز استشارات الرعاية والدعم',
@@ -428,14 +580,26 @@ ar:{
   saved:'التركيبات المحفوظة', save_mode:'حفظ', load_mode:'تحميل', code_share:'رمز المشاركة',
   code_hint:'أرسل هذا الرمز ليتمكن شخص آخر من إعادة بناء التركيب نفسه.', copy:'نسخ', paste_load:'لصق وتحميل',
   saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة',
-  ask_title:'هل تريد العودة إلى العنوان؟ ستختفي الكرات، ويبقى التركيب كما هو.', yes:'نعم', no:'لا' } };
+  ask_title:'هل تريد العودة إلى العنوان؟ ستختفي الكرات، ويبقى التركيب كما هو.', yes:'نعم', no:'لا',
+  g_title:'طريقة اللعب', g_prev:'السابق', g_next:'التالي',
+  g_heads:['أهلًا بك', '{m_build}: وضع القطع', '{m_play}: إسقاط الكرة', 'بناء آلة عالية', 'الحفظ ورمز المشاركة', 'الصوت، وكل شيء يبقى على هذا الجهاز', 'شاشة العنوان وهذا الدليل'],
+  g_bodies:[
+    'ضع المنحدرات وأحجار الدومينو والأرجوحة والمراوح لتصنع آلة توصل الكرة إلى الهدف.\nالكرة وأحجار الدومينو تتدحرج وتسقط بفيزياء حقيقية. لا يوجد وقت محدّد ولا خسارة.',
+    'في «{m_build}» اختر مثلًا «{t_ramp}» أو «{t_domino}» أو «{t_seesaw}» أو «{t_fan}» أو «{t_goal}»، ثم المس الشاشة لوضعه. «{t_spawn}» هو المكان الذي تخرج منه الكرة.\nاضغط بإصبعك على قطعة موضوعة لتحريكها. للقطعة المختارة تغيّر المنزلقات في الأسفل الطول والميل وغير ذلك.\nإذا أخطأت، اختر «{t_erase}» ثم المس القطعة. «{clear_all}» يزيل كل شيء.',
+    'انتقل إلى «{m_play}» والمس «{drop}»: تخرج الكرة من «{t_spawn}». عندما تصطدم بقطعة تتحرك القطع واحدة تلو الأخرى، ويُعلمك ضوء وصوت عندما تصل إلى الهدف.\n«{reset}» يزيل الكرات ويعيد كل شيء كما كان في البداية. منزلق «{speed}» يجعل الحركة أبطأ أو أسرع.',
+    'منزلق «{world_h}» يجعل الآلة بارتفاع يصل إلى 10 شاشات. في «{m_build}» يحرّك الزرّان ▲ ▼ أسفل اليمين العرض إلى الأعلى والأسفل.\nفي «{m_play}» يتبع العرض الكرة.',
+    'المس «{save_mode}» ثم رقمًا من 1 إلى 6 للحفظ هناك. للتحميل المس «{save_mode}» مرة أخرى لإيقاف الحفظ، ثم رقمًا عليه ●. الآلة غير المحفوظة تختفي عند إغلاق التطبيق.\n«{code_share}» يحوّل الآلة إلى رمز نصي. المس «{copy}» وأرسل الرمز، فيستطيع شخص آخر بناء الشيء نفسه. لقراءة رمز، امسح ما في خانة «{code_share}» والصق الرمز، ثم المس «{paste_load}».',
+    'منزلقا «{volume}» و«{bgm}» في «{m_play}» يغيّران مستوى الصوت.\nالتركيبات المحفوظة تبقى على هذا الجهاز فقط ولا تُرسَل إلى أي مكان. لا حاجة إلى تسجيل.\nعند تغيير الهاتف، أرسل الرمز الذي نسخته عبر «{copy}» إلى الهاتف الجديد واقرأه بالطريقة نفسها عبر «{paste_load}» لتحصل على التركيب نفسه.',
+    'بـ«{to_title}» تعود إلى العنوان في أي وقت. يبقى التركيب كما هو.\nيمكنك عرض هذا الدليل مرة أخرى في أي وقت عبر «{g_title}» بجانب اللغة في شاشة العنوان.'
+  ] } };
 var LANGS=['ja','en','de','fr','es','it','pt','nl','sv','ko','zh','ar'];
 var LABELS={ja:'日本語',en:'English',de:'Deutsch',fr:'Français',es:'Español',it:'Italiano',pt:'Português',nl:'Nederlands',sv:'Svenska',ko:'한국어',zh:'中文',ar:'العربية'};
 var lang='ja';
 function t(k){ var d=I18N[lang]||{}; if(d[k]!=null)return d[k]; var j=I18N.ja||{}; return (j[k]!=null)?j[k]:k; }
 function applyLang(l){ lang=l; document.documentElement.lang=l; document.documentElement.dir=(l==='ar')?'rtl':'ltr';
   var ns=document.querySelectorAll('[data-i18n]'); for(var i=0;i<ns.length;i++){ ns[i].innerHTML=t(ns[i].getAttribute('data-i18n')); }
-  try{ localStorage.setItem('shikumi_lang',l); }catch(e){} renderSliders(); }
+  try{ localStorage.setItem('shikumi_lang',l); }catch(e){} renderSliders();
+  if(guideOv) guideOv._draw(); }   // はじめての あそびかた も、同じページのまま その言語に
 function buildLangSelect(host){ if(!host)return; var sel=document.createElement('select');
   for(var i=0;i<LANGS.length;i++){ var o=document.createElement('option'); o.value=LANGS[i]; o.textContent=LABELS[LANGS[i]]; if(LANGS[i]===lang)o.selected=true; sel.appendChild(o); }
   sel.addEventListener('change',function(){ applyLang(sel.value); }); host.innerHTML=''; host.appendChild(sel); }
@@ -990,6 +1154,7 @@ function setMode(m){ document.getElementById('mBuild').classList.toggle('on',m==
 function bind(){
   document.getElementById('startBtn').addEventListener('click',function(){ document.getElementById('start').style.display='none'; audioOn(); bgmStart(); layout(); });
   document.getElementById('homeBtn').addEventListener('click',function(){ clearBalls(); document.getElementById('start').style.display=''; });
+  document.getElementById('guideBtn').addEventListener('click',function(e){ e.stopPropagation(); openGuide(false); });   // タイトルの「？ あそびかた」=案内を もう一度 見る
   document.getElementById('mBuild').addEventListener('click',function(){ setMode('build'); });
   document.getElementById('mPlay').addEventListener('click',function(){ setMode('play'); });
   var chips=document.querySelectorAll('#toolSeg .chip');
@@ -1026,6 +1191,8 @@ function bind(){
 /* ---------- Android の戻るボタン(Play版だけ・2026-09-30) ----------
    @capacitor/app が無いと、戻るでアプリごと後ろに下がっていた(Android 11 以前は閉じる=保存していないしくみも消える)。
    押したときの順: ①確かめの窓 → いいえ
+                  ①' はじめての あそびかた(2026-09-30・下の節): 2ページ目から=まえのページ / 1ページ目=初回なら後ろに下げる(閉じない)、
+                      タイトルの「？ あそびかた」から開いたときは閉じる(タイトルのまま)
                   ②つくる・あそぶ → 「タイトルにもどる」と同じ(しくみはそのまま・玉は消える)。
                     あそぶで玉が出ているときは、先に確かめの窓(いいえ=そのまま)
                   ③タイトル → アプリを後ろに下げる(minimizeApp。中身はそのまま)
@@ -1061,6 +1228,7 @@ function askBox(msg,done){
 function onBack(){
   var ask=document.querySelector('.ask-ov');
   if(ask){ var an=ask.querySelector('.ask-no'); if(an) an.click(); return; }
+  if(guideOv){ guideOv._back(); return; }   // はじめての あそびかた(下の節)
   if(document.getElementById('start').style.display!=='none'){ minimizeApp(); return; }
   var home=document.getElementById('homeBtn');
   if(mode==='play' && balls.length){ askBox(t('ask_title'), function(ok){ if(ok) home.click(); }); return; }
@@ -1071,12 +1239,83 @@ function watchBack(){
   try{ ap.addListener('backButton',function(){ onBack(); }); }catch(e){}
 }
 
+/* ---------- はじめての あそびかた(初回の案内・2026-09-30) ----------
+   ヒロさん「ひとつずつ・そよぎ みたいなタイプのアプリは、必ず最初に使い方の丁寧な説明を出してほしい。10代の情報室のように」。
+   ・初回起動で必ず出す(最後まで読むまで、開くたびに出る)。タイトル・盤面・操作パネルより上に全画面
+   ・文は I18N の g_title / g_heads / g_bodies。{キー} は同じ言語の I18N の文字に置きかえる(gtext)=ボタン名が画面と必ず同じ
+   ・1ページ目に ことば(タイトルと同じ12言語)。選ぶと案内もタイトルもその言語になる
+   ・1ページずつ「つぎ」「まえ」で進む。閉じるのは最後のページの「はじめる」だけ(× は置かない)。
+     「はじめる」はタイトルの「はじめる」と同じ(閉じて、そのまま つくる へ。音と BGM はこのタップから=今までどおり)
+   ・戻るボタン(Play版): 2ページ目から=まえのページ / 1ページ目=初回なら後ろに下げる(閉じない)、
+     タイトルの ことば の となりの「？ あそびかた」(g_title)から開いたときは閉じる(タイトルのまま)
+   ・読み終えたら localStorage の shikumi_guide_v1 = '1'
+   ・ボタンは今までどおり click で動く(キャンバスの pointerdown は案内の下に届かない) */
+var GUIDE_KEY='shikumi_guide_v1', guideOv=null;
+function guideDone(){ try{ return localStorage.getItem(GUIDE_KEY)==='1'; }catch(e){ return false; } }
+function gtext(s){ return String(s==null?'':s).replace(/\{([a-z_]+)\}/g,function(m,k){ var v=t(k); return (typeof v==='string') ? v.replace(/<[^>]*>/g,' ') : m; }); }
+function gEl(tag,cls){ var e=document.createElement(tag); e.className=cls; return e; }
+function openGuide(first){
+  if(guideOv) return;
+  var i=0;
+  var ov=gEl('div','guide-ov'); ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  var box=gEl('div','guide-box'), top=gEl('div','guide-top'), ttl=gEl('p','guide-title'), step=gEl('p','guide-step');
+  top.appendChild(ttl); top.appendChild(step);
+  /* ことば(1ページ目だけ): 案内はタイトルの ことば も覆うので、ここでも選べるように */
+  var langRow=gEl('div','guide-lang'), langLbl=gEl('label','guide-lang-lbl'), langSel=document.createElement('select');
+  langSel.id='guideLang'; langLbl.setAttribute('for','guideLang');
+  for(var o=0;o<LANGS.length;o++){ var op=document.createElement('option'); op.value=LANGS[o]; op.textContent=LABELS[LANGS[o]]; langSel.appendChild(op); }
+  langSel.addEventListener('change',function(){
+    applyLang(langSel.value);
+    var ts=document.querySelector('#startLang select'); if(ts) ts.value=langSel.value;   // タイトルの ことば もそろえる
+  });
+  langRow.appendChild(langLbl); langRow.appendChild(langSel);
+  var h=gEl('h2','guide-h'), p=gEl('p','guide-p'), dots=gEl('div','guide-dots');
+  dots.setAttribute('aria-hidden','true');
+  var row=gEl('div','guide-row'), prevB=gEl('button','act guide-prev'), nextB=gEl('button','act primary guide-next');
+  prevB.type='button'; nextB.type='button';
+  row.appendChild(prevB); row.appendChild(nextB);
+  box.appendChild(top); box.appendChild(langRow); box.appendChild(h); box.appendChild(p); box.appendChild(dots);
+  ov.appendChild(box); ov.appendChild(row);
+  function draw(){
+    var heads=t('g_heads'), bodies=t('g_bodies'), n=bodies.length;
+    if(i>n-1) i=n-1;
+    ov.setAttribute('aria-label',t('g_title'));
+    ttl.textContent=t('g_title');
+    step.textContent=(i+1)+' / '+n; step.setAttribute('dir','ltr');   // 「1 / 7」は右から左の言葉(ar)でも左から
+    langRow.style.display=(i===0)?'':'none';
+    langLbl.textContent=t('lang');
+    langSel.value=lang;
+    h.textContent=gtext(heads[i]); p.textContent=gtext(bodies[i]);
+    dots.textContent='';
+    for(var k=0;k<n;k++) dots.appendChild(gEl('span','guide-dot'+(k===i?' on':'')));
+    prevB.textContent=t('g_prev'); prevB.style.visibility=(i===0)?'hidden':'visible';   // 「つぎ」の位置を変えない
+    nextB.textContent=(i===n-1)?t('start'):t('g_next');
+    ov.scrollTop=0;
+  }
+  function close(start){
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    guideOv=null;
+    try{ localStorage.setItem(GUIDE_KEY,'1'); }catch(e){}
+    if(start){ var sb=document.getElementById('startBtn'); if(sb) sb.click(); }   // タイトルの「はじめる」と同じ
+  }
+  ov._draw=draw;
+  ov._back=function(){ if(i>0){ i--; draw(); return; } if(first) minimizeApp(); else close(false); };
+  prevB.addEventListener('click',function(){ if(i>0){ i--; draw(); } });
+  nextB.addEventListener('click',function(){ if(i<t('g_bodies').length-1){ i++; draw(); } else close(true); });
+  guideOv=ov;
+  document.body.appendChild(ov);
+  draw();
+  h.setAttribute('tabindex','-1');   // 読み上げに案内の始まりを伝える(枠は出さない)
+  try{ h.focus({preventScroll:true}); }catch(e){}
+}
+
 /* ---------- 起動 ---------- */
 lang=detectLang();
 buildLangSelect(document.querySelector('[data-langhost]'));
 applyLang(lang); bind(); layout(); renderSliders(); renderSlots();
 watchBack();   // Android の戻るボタン(Play版だけ)
 requestAnimationFrame(frame);
+if(!guideDone()) openGuide(true);   // はじめての あそびかた(読み終えるまで毎回・前から遊んでいる人も更新のあと1回・2026-09-30)
 
 window.Shikumi={ get gadgets(){return gadgets;}, get balls(){return balls;}, engine:engine, Matter:M,
   step:function(n){ n=n||1; for(var i=0;i<n;i++){ stepWorld(); } },
