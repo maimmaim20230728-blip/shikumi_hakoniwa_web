@@ -168,7 +168,7 @@
         <div class="row" style="margin-top:10px">
           <button class="act ghost" id="clearBtn" style="flex:1" data-i18n="clear_all">全部消す</button>
         </div>
-        <div class="slabel" style="margin-top:10px"><span data-i18n="saved">保存したしくみ</span><span id="saveModeLbl" style="color:var(--mizu)"></span></div>
+        <div class="slabel" style="margin-top:10px"><span data-i18n="saved">保存したしくみ</span><span id="saveModeLbl" style="color:var(--mizu)" aria-live="polite"></span></div>
         <div class="seg" id="slotSeg"></div>
         <div class="row" style="gap:6px;margin-top:6px">
           <button class="act" id="saveModeBtn" style="flex:1" data-i18n="save_mode">保存する</button>
@@ -237,7 +237,7 @@ var I18N = { ja:{
   s_len:'長さ', s_ang:'かたむき', s_dir:'向き', s_power:'強さ', s_size:'大きさ', s_num:'数',
   saved:'保存したしくみ', save_mode:'保存する', load_mode:'よびだす', code_share:'共有コード',
   code_hint:'このコードを送れば、同じしくみを他の人が再現できます。', copy:'コピー', paste_load:'はりつけて読む',
-  saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ',
+  saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', copy_fail:"コピーできませんでした。コードを選んで、手でコピーしてください", save_fail:"保存できませんでした(端末の空き容量をご確認ください)", code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ',
   ask_title:'タイトルにもどりますか？ 玉は消えます。しくみはそのまま残ります。', yes:'はい', no:'いいえ',
   /* はじめての あそびかた(2026-09-30・下の openGuide)。g_heads / g_bodies の {キー} は、同じ言語のこの表の文字に置きかわる */
   g_title:'あそびかた', g_prev:'まえ', g_next:'つぎ',
@@ -269,7 +269,7 @@ en:{
   s_len:'Length', s_ang:'Tilt', s_dir:'Direction', s_power:'Strength', s_size:'Size', s_num:'Count',
   saved:'Saved builds', save_mode:'Save', load_mode:'Load', code_share:'Share code',
   code_hint:'Send this code and someone else can rebuild the same contraption.', copy:'Copy', paste_load:'Paste & load',
-  saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness',
+  saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', copy_fail:"Couldn't copy. Select the code and copy it by hand", save_fail:"Couldn't save (please check your device storage)", code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness',
   ask_title:'Go back to the title? The balls will disappear. Your build stays as it is.', yes:'Yes', no:'No',
   g_title:'How to play', g_prev:'Previous', g_next:'Next',
   g_heads:['Welcome to Shikumi no Hakoniwa', '{m_build}: place the parts', '{m_play}: drop the ball', 'Build a tall contraption', 'Saving and share codes', 'Sound, and it stays on this device', 'The title screen and this guide'],
@@ -300,7 +300,7 @@ de:{
   s_len:'Länge', s_ang:'Neigung', s_dir:'Richtung', s_power:'Stärke', s_size:'Größe', s_num:'Anzahl',
   saved:'Gespeicherte Aufbauten', save_mode:'Speichern', load_mode:'Laden', code_share:'Teilen-Code',
   code_hint:'Schicke diesen Code, dann kann jemand anderes den gleichen Aufbau nachbauen.', copy:'Kopieren', paste_load:'Einfügen & laden',
-  saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke',
+  saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', copy_fail:"Kopieren ging nicht. Bitte den Code markieren und selbst kopieren", save_fail:"Speichern ging nicht (bitte freien Speicher prüfen)", code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke',
   ask_title:'Zurück zum Titel? Die Kugeln verschwinden. Dein Aufbau bleibt erhalten.', yes:'Ja', no:'Nein',
   g_title:'Spielanleitung', g_prev:'Zurück', g_next:'Weiter',
   g_heads:['Willkommen bei Shikumi no Hakoniwa', '{m_build}: Teile aufstellen', '{m_play}: die Kugel fallen lassen', 'Hohe Maschinen bauen', 'Speichern und Teilen-Code', 'Ton, und alles bleibt auf diesem Gerät', 'Titel und diese Anleitung'],
@@ -331,7 +331,7 @@ fr:{
   s_len:'Longueur', s_ang:'Inclinaison', s_dir:'Direction', s_power:'Force', s_size:'Taille', s_num:'Nombre',
   saved:'Montages enregistrés', save_mode:'Enregistrer', load_mode:'Charger', code_share:'Code à partager',
   code_hint:'Envoie ce code et une autre personne pourra reconstruire le même montage.', copy:'Copier', paste_load:'Coller et charger',
-  saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur',
+  saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', copy_fail:"Copie impossible. Sélectionne le code et copie-le toi-même", save_fail:"Impossible d'enregistrer (vérifie l'espace disponible)", code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur',
   ask_title:'Revenir au titre ? Les billes disparaissent. Ton montage reste tel quel.', yes:'Oui', no:'Non',
   g_title:'Comment jouer', g_prev:'Précédent', g_next:'Suivant',
   g_heads:['Bienvenue dans Shikumi no Hakoniwa', '{m_build} : placer les éléments', '{m_play} : lâcher la bille', 'Construire un mécanisme haut', 'Enregistrer et code à partager', 'Le son, et tout reste sur cet appareil', 'Le titre et cette aide'],
@@ -362,7 +362,7 @@ es:{
   s_len:'Largo', s_ang:'Inclinación', s_dir:'Dirección', s_power:'Fuerza', s_size:'Tamaño', s_num:'Cantidad',
   saved:'Montajes guardados', save_mode:'Guardar', load_mode:'Cargar', code_share:'Código para compartir',
   code_hint:'Envía este código y otra persona podrá reproducir el mismo montaje.', copy:'Copiar', paste_load:'Pegar y cargar',
-  saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor',
+  saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', copy_fail:"No se pudo copiar. Selecciona el código y cópialo a mano", save_fail:"No se pudo guardar (comprueba el espacio libre)", code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor',
   ask_title:'¿Volver al inicio? Las bolas desaparecen. Tu montaje se queda como está.', yes:'Sí', no:'No',
   g_title:'Cómo jugar', g_prev:'Anterior', g_next:'Siguiente',
   g_heads:['Te damos la bienvenida a Shikumi no Hakoniwa', '{m_build}: colocar piezas', '{m_play}: soltar la bola', 'Construir un mecanismo alto', 'Guardar y código para compartir', 'El sonido, y todo se queda en este dispositivo', 'El inicio y esta guía'],
@@ -393,7 +393,7 @@ it:{
   s_len:'Lunghezza', s_ang:'Inclinazione', s_dir:'Direzione', s_power:'Forza', s_size:'Dimensione', s_num:'Numero',
   saved:'Costruzioni salvate', save_mode:'Salva', load_mode:'Carica', code_share:'Codice da condividere',
   code_hint:'Invia questo codice e un altro potrà ricreare la stessa costruzione.', copy:'Copia', paste_load:'Incolla e carica',
-  saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore',
+  saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', copy_fail:"Copia non riuscita. Seleziona il codice e copialo a mano", save_fail:"Salvataggio non riuscito (controlla lo spazio libero)", code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore',
   ask_title:"Tornare al titolo? Le palline spariscono. La tua costruzione resta com'è.", yes:'Sì', no:'No',
   g_title:'Come si gioca', g_prev:'Indietro', g_next:'Avanti',
   g_heads:['Benvenuti in Shikumi no Hakoniwa', '{m_build}: posizionare i pezzi', '{m_play}: lasciar cadere la pallina', 'Costruire un meccanismo alto', 'Salvare e codice da condividere', 'Il suono, e tutto resta su questo dispositivo', 'Il titolo e questa guida'],
@@ -424,7 +424,7 @@ pt:{
   s_len:'Comprimento', s_ang:'Inclinação', s_dir:'Direção', s_power:'Força', s_size:'Tamanho', s_num:'Quantidade',
   saved:'Montagens salvas', save_mode:'Salvar', load_mode:'Carregar', code_share:'Código para compartilhar',
   code_hint:'Envie este código e outra pessoa poderá refazer a mesma montagem.', copy:'Copiar', paste_load:'Colar e carregar',
-  saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura',
+  saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', copy_fail:"Não foi possível copiar. Selecione o código e copie à mão", save_fail:"Não foi possível salvar (verifique o espaço livre)", code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura',
   ask_title:'Voltar ao início? As bolas somem. Sua montagem continua como está.', yes:'Sim', no:'Não',
   g_title:'Como jogar', g_prev:'Anterior', g_next:'Próximo',
   g_heads:['Boas-vindas ao Shikumi no Hakoniwa', '{m_build}: colocar as peças', '{m_play}: soltar a bola', 'Montar um mecanismo alto', 'Salvar e código para compartilhar', 'O som, e tudo fica neste aparelho', 'O início e este guia'],
@@ -455,7 +455,7 @@ nl:{
   s_len:'Lengte', s_ang:'Helling', s_dir:'Richting', s_power:'Kracht', s_size:'Grootte', s_num:'Aantal',
   saved:'Opgeslagen bouwsels', save_mode:'Opslaan', load_mode:'Laden', code_share:'Deelcode',
   code_hint:'Stuur deze code en iemand anders kan hetzelfde bouwsel namaken.', copy:'Kopiëren', paste_load:'Plakken en laden',
-  saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte',
+  saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', copy_fail:"Kopiëren lukte niet. Selecteer de code en kopieer hem zelf", save_fail:"Opslaan lukte niet (controleer de vrije ruimte)", code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte',
   ask_title:'Terug naar de titel? De ballen verdwijnen. Je bouwsel blijft zoals het is.', yes:'Ja', no:'Nee',
   g_title:'Speluitleg', g_prev:'Vorige', g_next:'Volgende',
   g_heads:['Welkom bij Shikumi no Hakoniwa', '{m_build}: onderdelen neerzetten', '{m_play}: de bal loslaten', 'Een hoog mechaniek bouwen', 'Opslaan en deelcode', 'Geluid, en alles blijft op dit apparaat', 'De titel en deze uitleg'],
@@ -486,7 +486,7 @@ sv:{
   s_len:'Längd', s_ang:'Lutning', s_dir:'Riktning', s_power:'Styrka', s_size:'Storlek', s_num:'Antal',
   saved:'Sparade byggen', save_mode:'Spara', load_mode:'Ladda', code_share:'Delningskod',
   code_hint:'Skicka koden så kan någon annan bygga exakt samma sak.', copy:'Kopiera', paste_load:'Klistra in och ladda',
-  saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek',
+  saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', copy_fail:"Kunde inte kopiera. Markera koden och kopiera den själv", save_fail:"Kunde inte spara (kontrollera ledigt utrymme)", code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek',
   ask_title:'Tillbaka till startsidan? Kulorna försvinner. Ditt bygge blir kvar som det är.', yes:'Ja', no:'Nej',
   g_title:'Så spelar du', g_prev:'Föregående', g_next:'Nästa',
   g_heads:['Välkommen till Shikumi no Hakoniwa', '{m_build}: placera delarna', '{m_play}: släpp kulan', 'Bygg en hög maskin', 'Spara och delningskod', 'Ljud, och allt stannar på den här enheten', 'Startsidan och den här guiden'],
@@ -517,7 +517,7 @@ ko:{
   s_len:'길이', s_ang:'기울기', s_dir:'방향', s_power:'세기', s_size:'크기', s_num:'개수',
   saved:'저장한 장치', save_mode:'저장하기', load_mode:'불러오기', code_share:'공유 코드',
   code_hint:'이 코드를 보내면 다른 사람이 같은 장치를 그대로 만들 수 있습니다.', copy:'복사', paste_load:'붙여넣어 읽기',
-  saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께',
+  saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', copy_fail:"복사하지 못했습니다. 코드를 선택해 직접 복사해 주세요", save_fail:"저장하지 못했습니다(기기의 남은 용량을 확인해 주세요)", code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께',
   ask_title:'타이틀로 돌아갈까요? 공은 사라집니다. 장치는 그대로 남습니다.', yes:'네', no:'아니요',
   g_title:'노는 법', g_prev:'이전', g_next:'다음',
   g_heads:['환영합니다', '{m_build}: 장치 놓기', '{m_play}: 공 떨어뜨리기', '높은 장치 만들기', '저장과 공유 코드', '소리, 그리고 이 기기 안에만', '타이틀과 이 안내'],
@@ -548,7 +548,7 @@ zh:{
   s_len:'长度', s_ang:'倾斜', s_dir:'方向', s_power:'强度', s_size:'大小', s_num:'数量',
   saved:'已保存的机关', save_mode:'保存', load_mode:'读取', code_share:'分享代码',
   code_hint:'把这个代码发给别人，就能还原出同样的机关。', copy:'复制', paste_load:'粘贴读取',
-  saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度',
+  saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', copy_fail:"无法复制。请选中代码手动复制", save_fail:"无法保存(请检查设备剩余空间)", code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度',
   ask_title:'返回标题吗？小球会消失，机关会原样保留。', yes:'是', no:'否',
   g_title:'玩法', g_prev:'上一页', g_next:'下一页',
   g_heads:['欢迎', '{m_build}：放置机关', '{m_play}：放下小球', '做一个高高的机关', '保存与分享代码', '声音，以及只留在这台设备上', '标题画面与这份玩法'],
@@ -579,7 +579,7 @@ ar:{
   s_len:'الطول', s_ang:'الميل', s_dir:'الاتجاه', s_power:'القوة', s_size:'الحجم', s_num:'العدد',
   saved:'التركيبات المحفوظة', save_mode:'حفظ', load_mode:'تحميل', code_share:'رمز المشاركة',
   code_hint:'أرسل هذا الرمز ليتمكن شخص آخر من إعادة بناء التركيب نفسه.', copy:'نسخ', paste_load:'لصق وتحميل',
-  saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة',
+  saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', copy_fail:"تعذّر النسخ. حدّد الرمز وانسخه يدويًا", save_fail:"تعذّر الحفظ (يرجى التحقق من مساحة التخزين)", code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة',
   ask_title:'هل تريد العودة إلى العنوان؟ ستختفي الكرات، ويبقى التركيب كما هو.', yes:'نعم', no:'لا',
   g_title:'طريقة اللعب', g_prev:'السابق', g_next:'التالي',
   g_heads:['أهلًا بك', '{m_build}: وضع القطع', '{m_play}: إسقاط الكرة', 'بناء آلة عالية', 'الحفظ ورمز المشاركة', 'الصوت، وكل شيء يبقى على هذا الجهاز', 'شاشة العنوان وهذا الدليل'],
@@ -892,14 +892,25 @@ function serialize(){
   }
   try{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }catch(e){ return ''; }
 }
+/* 🔴コードの中身を1つずつ確かめる(数でない値・大きすぎる値・知らない部品が1つでもあれば null)。
+   null なら applyLayout は何もしない＝壊れたコードを貼っても今の装置は消えない */
 function deserialize(code){
-  try{ var o=JSON.parse(decodeURIComponent(escape(atob((code||'').trim())))); if(!o||!o.g||!o.sp) return null;
-    var gs=[]; for(var i=0;i<o.g.length;i++){ var a=o.g[i];
-      if(a[0]==='r') gs.push({type:'ramp',x:a[1],y:a[2],len:a[3],ang:a[4],thick:a[5]||13});
-      else if(a[0]==='d') gs.push({type:'domino',x:a[1],y:a[2],w:a[3],h:a[4]});
-      else if(a[0]==='e') gs.push({type:'seesaw',x:a[1],y:a[2],len:a[3]});
-      else if(a[0]==='f') gs.push({type:'fan',x:a[1],y:a[2],w:a[3],h:a[4],dir:a[5],power:Math.max(1,Math.min(15,+a[6]||1))});
-      else if(a[0]==='g') gs.push({type:'goal',x:a[1],y:a[2],w:a[3]});
+  try{ var o=JSON.parse(decodeURIComponent(escape(atob((code||'').trim())))); if(!o||!Array.isArray(o.g)||!Array.isArray(o.sp)) return null;
+    if(!o.g.length || o.g.length>3000) return null;
+    var LIM=1e5;
+    var num=function(v){ return typeof v==='number' && isFinite(v) && Math.abs(v)<=LIM; };   // 位置・角度
+    var pos=function(v){ return num(v) && v>0; };                                          // 長さ・幅・高さ
+    if(!num(o.sp[0])||!num(o.sp[1])) return null;
+    if(o.wb!=null && o.wb!==0 && !pos(o.wb)) return null;
+    var gs=[]; for(var i=0;i<o.g.length;i++){ var a=o.g[i]; if(!Array.isArray(a)||!num(a[1])||!num(a[2])) return null;
+      if(a[0]==='r'){ if(!pos(a[3])||!num(a[4])||(a[5]!=null&&a[5]!==0&&!pos(a[5]))) return null;
+        gs.push({type:'ramp',x:a[1],y:a[2],len:a[3],ang:a[4],thick:a[5]||13}); }
+      else if(a[0]==='d'){ if(!pos(a[3])||!pos(a[4])) return null; gs.push({type:'domino',x:a[1],y:a[2],w:a[3],h:a[4]}); }
+      else if(a[0]==='e'){ if(!pos(a[3])) return null; gs.push({type:'seesaw',x:a[1],y:a[2],len:a[3]}); }
+      else if(a[0]==='f'){ if(!pos(a[3])||!pos(a[4])||!num(a[5])) return null;
+        gs.push({type:'fan',x:a[1],y:a[2],w:a[3],h:a[4],dir:a[5],power:Math.max(1,Math.min(15,+a[6]||1))}); }
+      else if(a[0]==='g'){ if(!pos(a[3])) return null; gs.push({type:'goal',x:a[1],y:a[2],w:a[3]}); }
+      else return null;
     }
     return {gadgets:gs, spawn:{x:o.sp[0],y:o.sp[1]}, worldTall:!!o.wt, worldBottom:o.wb||H};
   }catch(e){ return null; }
@@ -918,8 +929,11 @@ function renderSlots(){
   for(var i=1;i<=SLOT_N;i++){ (function(i){
     var filled=!!slotCode(i), c=document.createElement('div');
     c.className='chip'+(filled?' on':''); c.innerHTML='<span class="em">'+(filled?'●':'○')+'</span>'+i;
+    c.setAttribute('role','button'); c.tabIndex=0;   // キーボード・スイッチでも押せる(Enter / スペースは bind() の keydown)
+    c.setAttribute('aria-label', t('saved')+' '+i+(filled?'':' ('+t('slot_empty')+')'));
     c.addEventListener('click',function(){
-      if(saveMode){ try{ localStorage.setItem(SLOT_KEY+i, serialize()); }catch(e){} toast(i+t('saved_to')); renderSlots(); }
+      if(saveMode){ var okS=false; try{ localStorage.setItem(SLOT_KEY+i, serialize()); okS=true; }catch(e){}
+        toast(okS ? i+t('saved_to') : t('save_fail')); renderSlots(); }   // 保存できなかったら「保存しました」は出さない
       else if(filled){ if(!applyLayout(deserialize(slotCode(i)))) toast(t('code_bad')); }
     });
     host.appendChild(c);
@@ -1158,7 +1172,12 @@ function bind(){
   document.getElementById('mBuild').addEventListener('click',function(){ setMode('build'); });
   document.getElementById('mPlay').addEventListener('click',function(){ setMode('play'); });
   var chips=document.querySelectorAll('#toolSeg .chip');
-  chips.forEach(function(c){ c.addEventListener('click',function(){ chips.forEach(function(x){x.classList.remove('on');}); c.classList.add('on'); tool=c.getAttribute('data-tool'); sel=null; renderSliders(); }); });
+  chips.forEach(function(c){ c.setAttribute('role','button'); c.tabIndex=0; c.setAttribute('aria-pressed', c.classList.contains('on')?'true':'false'); });
+  chips.forEach(function(c){ c.addEventListener('click',function(){ chips.forEach(function(x){x.classList.remove('on'); x.setAttribute('aria-pressed','false');}); c.classList.add('on'); c.setAttribute('aria-pressed','true'); tool=c.getAttribute('data-tool'); sel=null; renderSliders(); }); });
+  // div で作った押せる所(道具のチップ・保存スロット)を、キーボード・スイッチでも Enter / スペースで押せるように
+  document.addEventListener('keydown',function(e){ var el=e.target;
+    if(!el || el.tagName==='BUTTON' || el.getAttribute('role')!=='button') return;
+    if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){ e.preventDefault(); el.click(); } });
   document.getElementById('clearBtn').addEventListener('click',function(){ gadgets.forEach(clearBodies); gadgets=[]; clearBalls(); worldTall=false; worldBottom=H; camY=0; sel=null; renderSliders(); updateWorldUI(); });
   var whs=document.getElementById('worldH');
   whs.addEventListener('input',function(){ var v=parseInt(whs.value);
@@ -1171,7 +1190,10 @@ function bind(){
   document.getElementById('codeToggle').addEventListener('click',function(){ var box=document.getElementById('codeBox');
     var show=(box.style.display==='none'); box.style.display=show?'':'none'; if(show) refreshCode(); });
   document.getElementById('copyBtn').addEventListener('click',function(){ var code=serialize(); var a=document.getElementById('codeArea'); a.value=code;
-    try{ if(navigator.clipboard) navigator.clipboard.writeText(code); }catch(e){} try{ a.focus(); a.select(); }catch(e){} toast(t('code_copied')); });
+    try{ a.focus(); a.select(); }catch(e){}
+    var done=function(ok){ toast(t(ok?'code_copied':'copy_fail')); };
+    var byHand=function(){ var ok=false; try{ ok=!!document.execCommand('copy'); }catch(e){} done(ok); };
+    try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(function(){ done(true); }, byHand); else byHand(); }catch(e){ byHand(); } });
   document.getElementById('pasteBtn').addEventListener('click',function(){ var a=document.getElementById('codeArea');
     var d=deserialize(a.value); if(d&&applyLayout(d)) toast(t('loaded')); else toast(t('code_bad')); });
   document.getElementById('dropBtn').addEventListener('click',dropBall);
@@ -1329,10 +1351,13 @@ window.Shikumi={ get gadgets(){return gadgets;}, get balls(){return balls;}, eng
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 <!-- Farcaster Mini App SDK・読み込み完了を通知しスプラッシュを閉じる(Farcaster外では無害にスキップ)🔴web側専用 -->
 <script type="module">
-  try {
-    const { sdk } = await import("https://esm.sh/@farcaster/miniapp-sdk");
-    await sdk.actions.ready();
-  } catch (e) { /* Farcaster外では何もしない */ }
+  /* Farcaster の中(iframe / アプリの WebView)で開いたときだけ SDK を読む。ふつうのブラウザ・PWA では外へつながない */
+  if ((window.self !== window.top) || window.ReactNativeWebView) {
+    try {
+      const { sdk } = await import("https://esm.sh/@farcaster/miniapp-sdk");
+      await sdk.actions.ready();
+    } catch (e) { /* Farcaster外では何もしない */ }
+  }
 </script>
 </body>
 </html>
