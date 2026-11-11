@@ -111,6 +111,11 @@
   .guide-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px;}
   .guide-dot{width:10px;height:10px;border-radius:50%;background:var(--line);}
   .guide-dot.on{background:var(--mizu);}
+  /* 最後のページ: 姉妹作の紹介(広告ではなく紹介)と 版の表示(2026-11-11) */
+  .guide-sis{margin:22px 0 0;font-size:14px;line-height:1.8;color:var(--sub);overflow-wrap:anywhere;}
+  .guide-sis a{display:inline-flex;align-items:center;min-height:44px;color:var(--mizu);text-decoration:underline;unicode-bidi:isolate;}
+  .guide-ver{margin:8px 0 0;font-size:12px;color:var(--sub);text-align:center;unicode-bidi:isolate;}
+  #stuckHint{color:var(--mizu);font-size:13px;}
   .guide-row{position:fixed;left:0;right:0;bottom:0;z-index:1;display:flex;gap:10px;background:var(--panel);border-top:1px solid var(--line);
     padding:10px max(16px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));}
   .guide-row .act{flex:1 1 0;min-width:0;min-height:56px;font-size:17px;}
@@ -168,6 +173,12 @@
         <div class="row" style="margin-top:10px">
           <button class="act ghost" id="clearBtn" style="flex:1" data-i18n="clear_all">全部消す</button>
         </div>
+        <div class="slabel" style="margin-top:10px"><span data-i18n="sample">おためし</span></div>
+        <div class="seg" id="sampleSeg">
+          <div class="chip" data-sample="1" role="button" tabindex="0"><span class="em">╱</span><span data-i18n="sm_1">坂だけ</span></div>
+          <div class="chip" data-sample="2" role="button" tabindex="0"><span class="em">▮</span><span data-i18n="sm_2">ドミノ</span></div>
+          <div class="chip" data-sample="3" role="button" tabindex="0"><span class="em">🌀</span><span data-i18n="sm_3">扇風機</span></div>
+        </div>
         <div class="slabel" style="margin-top:10px"><span data-i18n="saved">保存したしくみ</span><span id="saveModeLbl" style="color:var(--mizu)" aria-live="polite"></span></div>
         <div class="seg" id="slotSeg"></div>
         <div class="row" style="gap:6px;margin-top:6px">
@@ -195,6 +206,7 @@
         <div class="slabel"><span data-i18n="bgm">BGM</span><span id="bgmVal">1.0×</span></div>
         <input type="range" id="bgm" min="0" max="3" step="0.1" value="1">
         <div class="hint" data-i18n="hint_play">「おとす」で玉が落ちます。仕掛けに当たると次々に動きます。物理でちゃんと転がり、倒れます。</div>
+        <div class="hint" id="stuckHint" role="status"></div>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="act ghost" id="homeBtn" style="flex:1" data-i18n="to_title">タイトルにもどる</button>
@@ -239,6 +251,7 @@ var I18N = { ja:{
   code_hint:'このコードを送れば、同じしくみを他の人が再現できます。', copy:'コピー', paste_load:'はりつけて読む',
   saved_to:'に保存しました', slot_empty:'空', code_copied:'コピーしました', copy_fail:"コピーできませんでした。コードを選んで、手でコピーしてください", save_fail:"保存できませんでした(端末の空き容量をご確認ください)", code_bad:'コードが読めません', paste_prompt:'コードをはりつけてください', loaded:'よみこみました', bgm:'BGM', to_title:'タイトルにもどる', world_h:'たかさ(画面のかず)', s_thick:'あつみ',
   ask_title:'タイトルにもどりますか？ 玉は消えます。しくみはそのまま残ります。', yes:'はい', no:'いいえ', ask_clear:'作ったしくみを全部消しますか？', save_none:'しくみが ないので ほぞん できません',
+  sample:"おためし", sm_1:"坂だけ", sm_2:"ドミノ", sm_3:"扇風機", ask_sample:"おためしを よみこみますか？ いまのしくみは きえます。", hint_stuck:"ゴールに とどかず、玉が とまりました。「{reset}」で もどして、もういちど「{drop}」を。「{m_build}」で 坂の「{s_ang}」を かえてみるのも いいですね。", g_sister_lead:"しずかに あそべる 姉妹作です。", g_sister:"音の箱庭(Google Play)",
   /* はじめての あそびかた(2026-09-30・下の openGuide)。g_heads / g_bodies の {キー} は、同じ言語のこの表の文字に置きかわる */
   g_title:'あそびかた', g_prev:'まえ', g_next:'つぎ',
   g_heads:['仕組みの箱庭へ ようこそ', '{m_build}: 仕掛けを置く', '{m_play}: 玉をおとす', '高いしくみを作る', '保存と共有コード', '音と、この端末の中だけ', 'タイトルと この あそびかた'],
@@ -271,6 +284,7 @@ en:{
   code_hint:'Send this code and someone else can rebuild the same contraption.', copy:'Copy', paste_load:'Paste & load',
   saved_to:' saved', slot_empty:'Empty', code_copied:'Copied', copy_fail:"Couldn't copy. Select the code and copy it by hand", save_fail:"Couldn't save (please check your device storage)", code_bad:"Can't read the code", paste_prompt:'Please paste a code', loaded:'Loaded', bgm:'Music', to_title:'Back to title', world_h:'Height (screens)', s_thick:'Thickness',
   ask_title:'Go back to the title? The balls will disappear. Your build stays as it is.', yes:'Yes', no:'No', ask_clear:'Delete everything you built?', save_none:'Nothing built yet, so nothing to save',
+  sample:"Samples", sm_1:"Ramps only", sm_2:"Dominoes", sm_3:"Fan", ask_sample:"Load this sample? What you built now will disappear.", hint_stuck:"The ball stopped before the goal. Tap \"{reset}\" and then \"{drop}\" again, or go to \"{m_build}\" and change the \"{s_ang}\" of a ramp.", g_sister_lead:"A sister app that is just as quiet to play.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'How to play', g_prev:'Previous', g_next:'Next',
   g_heads:['Welcome to Shikumi no Hakoniwa', '{m_build}: place the parts', '{m_play}: drop the ball', 'Build a tall contraption', 'Saving and share codes', 'Sound, and it stays on this device', 'The title screen and this guide'],
   g_bodies:[
@@ -302,6 +316,7 @@ de:{
   code_hint:'Schicke diesen Code, dann kann jemand anderes den gleichen Aufbau nachbauen.', copy:'Kopieren', paste_load:'Einfügen & laden',
   saved_to:' gespeichert', slot_empty:'Leer', code_copied:'Kopiert', copy_fail:"Kopieren ging nicht. Bitte den Code markieren und selbst kopieren", save_fail:"Speichern ging nicht (bitte freien Speicher prüfen)", code_bad:'Code nicht lesbar', paste_prompt:'Bitte einen Code einfügen', loaded:'Geladen', bgm:'Musik', to_title:'Zum Titel', world_h:'Höhe (Bildschirme)', s_thick:'Dicke',
   ask_title:'Zurück zum Titel? Die Kugeln verschwinden. Dein Aufbau bleibt erhalten.', yes:'Ja', no:'Nein', ask_clear:'Deinen ganzen Aufbau löschen?', save_none:'Noch nichts gebaut, also nichts zu speichern',
+  sample:"Beispiele", sm_1:"Nur Rampen", sm_2:"Dominos", sm_3:"Ventilator", ask_sample:"Dieses Beispiel laden? Dein jetziger Aufbau verschwindet.", hint_stuck:"Die Kugel ist vor dem Ziel stehen geblieben. Tippe auf „{reset}“ und dann wieder auf „{drop}“, oder ändere unter „{m_build}“ die „{s_ang}“ einer Rampe.", g_sister_lead:"Eine Schwester-App, die genauso ruhig zu spielen ist.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Spielanleitung', g_prev:'Zurück', g_next:'Weiter',
   g_heads:['Willkommen bei Shikumi no Hakoniwa', '{m_build}: Teile aufstellen', '{m_play}: die Kugel fallen lassen', 'Hohe Maschinen bauen', 'Speichern und Teilen-Code', 'Ton, und alles bleibt auf diesem Gerät', 'Titel und diese Anleitung'],
   g_bodies:[
@@ -333,6 +348,7 @@ fr:{
   code_hint:'Envoie ce code et une autre personne pourra reconstruire le même montage.', copy:'Copier', paste_load:'Coller et charger',
   saved_to:' enregistré', slot_empty:'Vide', code_copied:'Copié', copy_fail:"Copie impossible. Sélectionne le code et copie-le toi-même", save_fail:"Impossible d'enregistrer (vérifie l'espace disponible)", code_bad:'Code illisible', paste_prompt:'Colle un code', loaded:'Chargé', bgm:'Musique', to_title:'Retour au titre', world_h:'Hauteur (écrans)', s_thick:'Épaisseur',
   ask_title:'Revenir au titre ? Les billes disparaissent. Ton montage reste tel quel.', yes:'Oui', no:'Non', ask_clear:'Effacer tout ton montage ?', save_none:"Rien n'est construit, rien à enregistrer",
+  sample:"Exemples", sm_1:"Rampes seules", sm_2:"Dominos", sm_3:"Ventilateur", ask_sample:"Charger cet exemple ? Ton montage actuel disparaîtra.", hint_stuck:"La bille s’est arrêtée avant le but. Touche « {reset} », puis « {drop} » de nouveau, ou change l’« {s_ang} » d’une rampe dans « {m_build} ».", g_sister_lead:"Une appli sœur tout aussi calme à jouer.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Comment jouer', g_prev:'Précédent', g_next:'Suivant',
   g_heads:['Bienvenue dans Shikumi no Hakoniwa', '{m_build} : placer les éléments', '{m_play} : lâcher la bille', 'Construire un mécanisme haut', 'Enregistrer et code à partager', 'Le son, et tout reste sur cet appareil', 'Le titre et cette aide'],
   g_bodies:[
@@ -364,6 +380,7 @@ es:{
   code_hint:'Envía este código y otra persona podrá reproducir el mismo montaje.', copy:'Copiar', paste_load:'Pegar y cargar',
   saved_to:' guardado', slot_empty:'Vacío', code_copied:'Copiado', copy_fail:"No se pudo copiar. Selecciona el código y cópialo a mano", save_fail:"No se pudo guardar (comprueba el espacio libre)", code_bad:'No se puede leer el código', paste_prompt:'Pega un código', loaded:'Cargado', bgm:'Música', to_title:'Volver al inicio', world_h:'Altura (pantallas)', s_thick:'Grosor',
   ask_title:'¿Volver al inicio? Las bolas desaparecen. Tu montaje se queda como está.', yes:'Sí', no:'No', ask_clear:'¿Borrar todo tu montaje?', save_none:'No hay nada construido, no se puede guardar',
+  sample:"Ejemplos", sm_1:"Solo rampas", sm_2:"Dominós", sm_3:"Ventilador", ask_sample:"¿Cargar este ejemplo? Tu montaje actual desaparecerá.", hint_stuck:"La bola se detuvo antes de la meta. Toca «{reset}» y luego «{drop}» otra vez, o cambia la «{s_ang}» de una rampa en «{m_build}».", g_sister_lead:"Una app hermana igual de tranquila para jugar.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Cómo jugar', g_prev:'Anterior', g_next:'Siguiente',
   g_heads:['Te damos la bienvenida a Shikumi no Hakoniwa', '{m_build}: colocar piezas', '{m_play}: soltar la bola', 'Construir un mecanismo alto', 'Guardar y código para compartir', 'El sonido, y todo se queda en este dispositivo', 'El inicio y esta guía'],
   g_bodies:[
@@ -395,6 +412,7 @@ it:{
   code_hint:'Invia questo codice e un altro potrà ricreare la stessa costruzione.', copy:'Copia', paste_load:'Incolla e carica',
   saved_to:' salvato', slot_empty:'Vuoto', code_copied:'Copiato', copy_fail:"Copia non riuscita. Seleziona il codice e copialo a mano", save_fail:"Salvataggio non riuscito (controlla lo spazio libero)", code_bad:'Codice non leggibile', paste_prompt:'Incolla un codice', loaded:'Caricato', bgm:'Musica', to_title:'Torna al titolo', world_h:'Altezza (schermi)', s_thick:'Spessore',
   ask_title:"Tornare al titolo? Le palline spariscono. La tua costruzione resta com'è.", yes:'Sì', no:'No', ask_clear:'Cancellare tutta la tua costruzione?', save_none:'Non hai ancora costruito nulla, niente da salvare',
+  sample:"Esempi", sm_1:"Solo rampe", sm_2:"Domino", sm_3:"Ventilatore", ask_sample:"Caricare questo esempio? La tua costruzione attuale sparirà.", hint_stuck:"La pallina si è fermata prima del traguardo. Tocca «{reset}» e poi di nuovo «{drop}», oppure cambia l’«{s_ang}» di una rampa in «{m_build}».", g_sister_lead:"Un’app sorella altrettanto tranquilla da giocare.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Come si gioca', g_prev:'Indietro', g_next:'Avanti',
   g_heads:['Benvenuti in Shikumi no Hakoniwa', '{m_build}: posizionare i pezzi', '{m_play}: lasciar cadere la pallina', 'Costruire un meccanismo alto', 'Salvare e codice da condividere', 'Il suono, e tutto resta su questo dispositivo', 'Il titolo e questa guida'],
   g_bodies:[
@@ -426,6 +444,7 @@ pt:{
   code_hint:'Envie este código e outra pessoa poderá refazer a mesma montagem.', copy:'Copiar', paste_load:'Colar e carregar',
   saved_to:' salvo', slot_empty:'Vazio', code_copied:'Copiado', copy_fail:"Não foi possível copiar. Selecione o código e copie à mão", save_fail:"Não foi possível salvar (verifique o espaço livre)", code_bad:'Não dá para ler o código', paste_prompt:'Cole um código', loaded:'Carregado', bgm:'Música', to_title:'Voltar ao início', world_h:'Altura (telas)', s_thick:'Espessura',
   ask_title:'Voltar ao início? As bolas somem. Sua montagem continua como está.', yes:'Sim', no:'Não', ask_clear:'Apagar toda a sua montagem?', save_none:'Não há nada montado, então não dá para salvar',
+  sample:"Exemplos", sm_1:"Só rampas", sm_2:"Dominós", sm_3:"Ventilador", ask_sample:"Carregar este exemplo? Sua montagem atual vai sumir.", hint_stuck:"A bola parou antes da meta. Toque em «{reset}» e depois em «{drop}» de novo, ou mude a «{s_ang}» de uma rampa em «{m_build}».", g_sister_lead:"Um app irmão, igualmente tranquilo para jogar.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Como jogar', g_prev:'Anterior', g_next:'Próximo',
   g_heads:['Boas-vindas ao Shikumi no Hakoniwa', '{m_build}: colocar as peças', '{m_play}: soltar a bola', 'Montar um mecanismo alto', 'Salvar e código para compartilhar', 'O som, e tudo fica neste aparelho', 'O início e este guia'],
   g_bodies:[
@@ -457,6 +476,7 @@ nl:{
   code_hint:'Stuur deze code en iemand anders kan hetzelfde bouwsel namaken.', copy:'Kopiëren', paste_load:'Plakken en laden',
   saved_to:' opgeslagen', slot_empty:'Leeg', code_copied:'Gekopieerd', copy_fail:"Kopiëren lukte niet. Selecteer de code en kopieer hem zelf", save_fail:"Opslaan lukte niet (controleer de vrije ruimte)", code_bad:'Code niet leesbaar', paste_prompt:'Plak een code', loaded:'Geladen', bgm:'Muziek', to_title:'Terug naar titel', world_h:'Hoogte (schermen)', s_thick:'Dikte',
   ask_title:'Terug naar de titel? De ballen verdwijnen. Je bouwsel blijft zoals het is.', yes:'Ja', no:'Nee', ask_clear:'Je hele bouwsel wissen?', save_none:'Er is nog niets gebouwd, dus niets om op te slaan',
+  sample:"Voorbeelden", sm_1:"Hellingen", sm_2:"Dominostenen", sm_3:"Ventilator", ask_sample:"Dit voorbeeld laden? Je huidige bouwsel verdwijnt.", hint_stuck:"De bal is gestopt voor de finish. Tik op „{reset}” en daarna weer op „{drop}”, of verander bij „{m_build}” de „{s_ang}” van een helling.", g_sister_lead:"Een zusterapp die net zo rustig te spelen is.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Speluitleg', g_prev:'Vorige', g_next:'Volgende',
   g_heads:['Welkom bij Shikumi no Hakoniwa', '{m_build}: onderdelen neerzetten', '{m_play}: de bal loslaten', 'Een hoog mechaniek bouwen', 'Opslaan en deelcode', 'Geluid, en alles blijft op dit apparaat', 'De titel en deze uitleg'],
   g_bodies:[
@@ -488,6 +508,7 @@ sv:{
   code_hint:'Skicka koden så kan någon annan bygga exakt samma sak.', copy:'Kopiera', paste_load:'Klistra in och ladda',
   saved_to:' sparad', slot_empty:'Tom', code_copied:'Kopierad', copy_fail:"Kunde inte kopiera. Markera koden och kopiera den själv", save_fail:"Kunde inte spara (kontrollera ledigt utrymme)", code_bad:'Koden går inte att läsa', paste_prompt:'Klistra in en kod', loaded:'Laddad', bgm:'Musik', to_title:'Till startsidan', world_h:'Höjd (skärmar)', s_thick:'Tjocklek',
   ask_title:'Tillbaka till startsidan? Kulorna försvinner. Ditt bygge blir kvar som det är.', yes:'Ja', no:'Nej', ask_clear:'Radera hela ditt bygge?', save_none:'Inget byggt än, så inget att spara',
+  sample:"Exempel", sm_1:"Bara ramper", sm_2:"Domino", sm_3:"Fläkt", ask_sample:"Ladda det här exemplet? Ditt nuvarande bygge försvinner.", hint_stuck:"Kulan stannade före målet. Tryck på ”{reset}” och sedan ”{drop}” igen, eller ändra ”{s_ang}” på en ramp under ”{m_build}”.", g_sister_lead:"En systerapp som är lika lugn att spela.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'Så spelar du', g_prev:'Föregående', g_next:'Nästa',
   g_heads:['Välkommen till Shikumi no Hakoniwa', '{m_build}: placera delarna', '{m_play}: släpp kulan', 'Bygg en hög maskin', 'Spara och delningskod', 'Ljud, och allt stannar på den här enheten', 'Startsidan och den här guiden'],
   g_bodies:[
@@ -519,6 +540,7 @@ ko:{
   code_hint:'이 코드를 보내면 다른 사람이 같은 장치를 그대로 만들 수 있습니다.', copy:'복사', paste_load:'붙여넣어 읽기',
   saved_to:'번에 저장했습니다', slot_empty:'빈칸', code_copied:'복사했습니다', copy_fail:"복사하지 못했습니다. 코드를 선택해 직접 복사해 주세요", save_fail:"저장하지 못했습니다(기기의 남은 용량을 확인해 주세요)", code_bad:'코드를 읽을 수 없습니다', paste_prompt:'코드를 붙여넣어 주세요', loaded:'불러왔습니다', bgm:'음악', to_title:'타이틀로 돌아가기', world_h:'높이(화면 수)', s_thick:'두께',
   ask_title:'타이틀로 돌아갈까요? 공은 사라집니다. 장치는 그대로 남습니다.', yes:'네', no:'아니요', ask_clear:'만든 장치를 모두 지울까요?', save_none:'장치가 없어서 저장할 수 없습니다',
+  sample:"예시", sm_1:"경사만", sm_2:"도미노", sm_3:"선풍기", ask_sample:"이 예시를 불러올까요? 지금 만든 장치는 사라집니다.", hint_stuck:"공이 골에 닿기 전에 멈췄습니다. 「{reset}」를 누르고 다시 「{drop}」를 누르거나, 「{m_build}」에서 경사의 「{s_ang}」를 바꿔 보세요.", g_sister_lead:"조용히 즐길 수 있는 자매 앱입니다.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'노는 법', g_prev:'이전', g_next:'다음',
   g_heads:['환영합니다', '{m_build}: 장치 놓기', '{m_play}: 공 떨어뜨리기', '높은 장치 만들기', '저장과 공유 코드', '소리, 그리고 이 기기 안에만', '타이틀과 이 안내'],
   g_bodies:[
@@ -550,6 +572,7 @@ zh:{
   code_hint:'把这个代码发给别人，就能还原出同样的机关。', copy:'复制', paste_load:'粘贴读取',
   saved_to:' 已保存', slot_empty:'空', code_copied:'已复制', copy_fail:"无法复制。请选中代码手动复制", save_fail:"无法保存(请检查设备剩余空间)", code_bad:'无法读取代码', paste_prompt:'请粘贴代码', loaded:'已读取', bgm:'音乐', to_title:'返回标题', world_h:'高度(屏数)', s_thick:'厚度',
   ask_title:'返回标题吗？小球会消失，机关会原样保留。', yes:'是', no:'否', ask_clear:'要清除做好的全部机关吗？', save_none:'没有机关，无法保存',
+  sample:"示例", sm_1:"只有斜坡", sm_2:"多米诺", sm_3:"风扇", ask_sample:"要读取这个示例吗？现在做好的机关会消失。", hint_stuck:"小球在到达终点前停住了。点「{reset}」，再点「{drop}」，或者在「{m_build}」里改一下斜坡的「{s_ang}」。", g_sister_lead:"同样可以安静玩的姐妹作。", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'玩法', g_prev:'上一页', g_next:'下一页',
   g_heads:['欢迎', '{m_build}：放置机关', '{m_play}：放下小球', '做一个高高的机关', '保存与分享代码', '声音，以及只留在这台设备上', '标题画面与这份玩法'],
   g_bodies:[
@@ -581,6 +604,7 @@ ar:{
   code_hint:'أرسل هذا الرمز ليتمكن شخص آخر من إعادة بناء التركيب نفسه.', copy:'نسخ', paste_load:'لصق وتحميل',
   saved_to:' تم الحفظ', slot_empty:'فارغ', code_copied:'تم النسخ', copy_fail:"تعذّر النسخ. حدّد الرمز وانسخه يدويًا", save_fail:"تعذّر الحفظ (يرجى التحقق من مساحة التخزين)", code_bad:'تعذّرت قراءة الرمز', paste_prompt:'الصق الرمز من فضلك', loaded:'تم التحميل', bgm:'الموسيقى', to_title:'العودة إلى العنوان', world_h:'الارتفاع (عدد الشاشات)', s_thick:'السماكة',
   ask_title:'هل تريد العودة إلى العنوان؟ ستختفي الكرات، ويبقى التركيب كما هو.', yes:'نعم', no:'لا', ask_clear:'هل تريد حذف التركيب كله؟', save_none:'لا يوجد تركيب، فلا يمكن الحفظ',
+  sample:"أمثلة", sm_1:"منحدرات فقط", sm_2:"دومينو", sm_3:"مروحة", ask_sample:"هل تريد تحميل هذا المثال؟ سيختفي تركيبك الحالي.", hint_stuck:"توقفت الكرة قبل الوصول إلى الهدف. اضغط «{reset}» ثم «{drop}» مرة أخرى، أو غيّر «{s_ang}» لمنحدر من «{m_build}».", g_sister_lead:"تطبيق شقيق يُلعب بهدوء مثله.", g_sister:"Oto no Hakoniwa (Google Play)",
   g_title:'طريقة اللعب', g_prev:'السابق', g_next:'التالي',
   g_heads:['أهلًا بك', '{m_build}: وضع القطع', '{m_play}: إسقاط الكرة', 'بناء آلة عالية', 'الحفظ ورمز المشاركة', 'الصوت، وكل شيء يبقى على هذا الجهاز', 'شاشة العنوان وهذا الدليل'],
   g_bodies:[
@@ -599,6 +623,7 @@ function t(k){ var d=I18N[lang]||{}; if(d[k]!=null)return d[k]; var j=I18N.ja||{
 function applyLang(l){ lang=l; document.documentElement.lang=l; document.documentElement.dir=(l==='ar')?'rtl':'ltr';
   var ns=document.querySelectorAll('[data-i18n]'); for(var i=0;i<ns.length;i++){ ns[i].innerHTML=t(ns[i].getAttribute('data-i18n')); }
   try{ localStorage.setItem('shikumi_lang',l); }catch(e){} renderSliders();
+  if(stuckShown){ var sh=document.getElementById('stuckHint'); if(sh) sh.textContent=gtext(t('hint_stuck')); }   // 止まった玉の案内も その言語に
   if(guideOv) guideOv._draw(); }   // はじめての あそびかた も、同じページのまま その言語に
 function buildLangSelect(host){ if(!host)return; var sel=document.createElement('select');
   for(var i=0;i<LANGS.length;i++){ var o=document.createElement('option'); o.value=LANGS[i]; o.textContent=LABELS[LANGS[i]]; if(LANGS[i]===lang)o.selected=true; sel.appendChild(o); }
@@ -726,7 +751,7 @@ function checkDominoFooting(){
     }
   }
 }
-function clearBalls(){ balls.forEach(function(b){ Composite.remove(world,b); }); balls=[]; }
+function clearBalls(){ balls.forEach(function(b){ Composite.remove(world,b); }); balls=[]; setStuck(false); }
 
 /* ---------- 仕掛けの既定パラメータ ---------- */
 function newGadget(type,x,y){
@@ -749,6 +774,30 @@ function buildDefault(){
   sel=null;
   rebuildWorld(false);
 }
+
+/* ---------- おためし(2026-11-11・一斉点検 136) ----------
+   最初は空の画面から組むので、迷う人のための手本3つ。どれも画面の高さ(H=420〜620)で玉がゴールに届くことを確かめてある。
+   ・1=坂だけ(見本と同じ)  ・2=ドミノ(玉がドミノの列に当たって倒す)  ・3=扇風機(風がないと届かない)
+   ドミノの上を玉が渡る形は静止摩擦で玉が止まりやすいので、列は坂の下り側の短い区間にした */
+function sampleLayout(k){
+  var g=[], sp={x:48,y:26}, i;
+  if(k===2){
+    var ry=170, rx=190, tn=Math.tan(20*Math.PI/180);
+    sp={x:40,y:60};
+    g.push({type:'ramp', x:rx, y:ry, len:330, thick:13, ang:20});
+    for(i=0;i<4;i++){ var dx=240+i*22; g.push({type:'domino', x:dx, y:ry+(dx-rx)*tn-7.5, w:9, h:44}); }
+  } else if(k===3){
+    sp={x:30,y:40};
+    g.push({type:'ramp', x:110, y:140, len:200, thick:13, ang:14});
+    g.push({type:'fan', x:245, y:260, w:100, h:110, dir:20, power:8});
+  } else {
+    g.push({type:'ramp', x:135, y:150, len:240, thick:13, ang:16});
+    g.push({type:'ramp', x:300, y:255, len:170, thick:13, ang:28});
+  }
+  g.push({type:'goal', x:372, y:H-4, w:96});
+  return {gadgets:g, spawn:sp, worldTall:false, worldBottom:H};
+}
+function loadSample(k){ if(applyLayout(sampleLayout(k))) toast(t('loaded')); }
 
 /* ---------- 入力(つくる) ---------- */
 function hitGadget(g,x,y){
@@ -890,12 +939,42 @@ function serialize(){
     else if(gd.type==='fan') o.g.push(['f',r2(gd.x),r2(gd.y),r2(gd.w),r2(gd.h),r2(gd.dir),+((gd.power||1).toFixed(1))]);
     else if(gd.type==='goal') o.g.push(['g',r2(gd.x),r2(gd.y),r2(gd.w)]);
   }
-  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }catch(e){ return ''; }
+  try{ return packCode(o); }catch(e){ return ''; }
+}
+/* 共有コードを短くする(2026-11-11・一斉点検 138)。
+   ・新しい形(S2): 数を 0〜250 の整数なら1バイト、それ以外は 完全精度のまま(8バイトの小数)で並べて base64 にする。
+     丸めないので 同じしくみが そのまま再現できる(以前の JSON 形式の約 1/3〜1/4 の長さ)
+   ・読むときは S2 も 以前の JSON 形式(eyJ…)も読める。ただし古い版のアプリは S2 のコードを読めない */
+function packCode(o){
+  var a=[0x53,0x32,o.wt?1:0];
+  function num(v){ if(v>=0&&v<=250&&v===Math.floor(v)){ a.push(v); return; }
+    var dv=new DataView(new ArrayBuffer(8)); dv.setFloat64(0,v); a.push(255); for(var i=0;i<8;i++) a.push(dv.getUint8(i)); }
+  num(o.wb); num(o.sp[0]); num(o.sp[1]);
+  a.push((o.g.length>>8)&255, o.g.length&255);
+  for(var i=0;i<o.g.length;i++){ var e=o.g[i]; a.push(e[0].charCodeAt(0)); for(var j=1;j<e.length;j++) num(e[j]); }
+  var s=''; for(var k=0;k<a.length;k++) s+=String.fromCharCode(a[k]);
+  return btoa(s);
+}
+var CODE_LEN={r:5,d:4,e:3,f:6,g:3};
+function unpackCode(bin){   // S2 の中身 → JSON 形式と同じ形の o。途中で切れていたり余りがあれば例外
+  var p=2, n=bin.length;
+  function byte(){ if(p>=n) throw new Error('short'); return bin.charCodeAt(p++); }
+  function num(){ var b=byte(); if(b!==255) return b;
+    var dv=new DataView(new ArrayBuffer(8)); for(var i=0;i<8;i++) dv.setUint8(i,byte()); return dv.getFloat64(0); }
+  var o={v:1, wt:byte()===1?1:0, wb:num(), sp:[num(),num()], g:[]};
+  var cnt=(byte()<<8)|byte();
+  for(var i=0;i<cnt;i++){ var ty=String.fromCharCode(byte()), len=CODE_LEN[ty]; if(!len) throw new Error('type');
+    var e=[ty]; for(var j=0;j<len;j++) e.push(num()); o.g.push(e); }
+  if(p!==n) throw new Error('long');
+  return o;
 }
 /* 🔴コードの中身を1つずつ確かめる(数でない値・大きすぎる値・知らない部品が1つでもあれば null)。
    null なら applyLayout は何もしない＝壊れたコードを貼っても今の装置は消えない */
 function deserialize(code){
-  try{ var o=JSON.parse(decodeURIComponent(escape(atob((code||'').trim())))); if(!o||!Array.isArray(o.g)||!Array.isArray(o.sp)) return null;
+  try{ var bin=atob((code||'').trim()), o;
+    if(bin.charCodeAt(0)===0x53 && bin.charCodeAt(1)===0x32) o=unpackCode(bin);
+    else o=JSON.parse(decodeURIComponent(escape(bin)));
+    if(!o||!Array.isArray(o.g)||!Array.isArray(o.sp)) return null;
     if(!o.g.length || o.g.length>3000) return null;
     var LIM=1e5;
     var num=function(v){ return typeof v==='number' && isFinite(v) && Math.abs(v)<=LIM; };   // 位置・角度
@@ -972,7 +1051,20 @@ function clampBallSpeed(){
   for(var i=0;i<balls.length;i++){ var v=balls[i].velocity, sp=Math.hypot(v.x,v.y);
     if(sp>maxV){ Body.setVelocity(balls[i], {x:v.x/sp*maxV, y:v.y/sp*maxV}); } }
 }
-function stepWorld(){ Engine.update(engine,FIXED); clampBallSpeed(); applyFans(); updateSeesaws(); checkGoals(); }
+/* ゴールに届かず玉が止まったとき(約3秒、3px以内): 「もう一度おとす」「坂をかたむける」の小さな案内(2026-11-11・一斉点検 139)。
+   ゴールに入った後・玉が無いとき・つくるのときは出さない。ゆっくり動いている玉(ドミノの上など)は止まったと見なさない */
+var STUCK_N=180, stuckShown=false;
+function setStuck(on){ if(on===stuckShown) return; stuckShown=on; var el=document.getElementById('stuckHint'); if(el) el.textContent=on?gtext(t('hint_stuck')):''; }
+function watchStuck(){
+  if(mode!=='play'||!balls.length){ setStuck(false); return; }
+  for(var i=0;i<gadgets.length;i++){ if(gadgets[i].type==='goal'&&gadgets[i].hit){ setStuck(false); return; } }
+  var still=true;
+  for(var b=0;b<balls.length;b++){ var ball=balls[b], p=ball.position;
+    if(ball._ax==null||Math.hypot(p.x-ball._ax,p.y-ball._ay)>3){ ball._ax=p.x; ball._ay=p.y; ball._n=0; } else ball._n++;
+    if(ball._n<STUCK_N) still=false; }
+  setStuck(still);
+}
+function stepWorld(){ Engine.update(engine,FIXED); clampBallSpeed(); applyFans(); updateSeesaws(); checkGoals(); watchStuck(); }
 
 /* ---------- 音(最小WebAudio・衝突で鳴らす) ---------- */
 var actx=null, master=null, lastSnd={};
@@ -1179,6 +1271,11 @@ function bind(){
   document.addEventListener('keydown',function(e){ var el=e.target;
     if(!el || el.tagName==='BUTTON' || el.getAttribute('role')!=='button') return;
     if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){ e.preventDefault(); el.click(); } });
+  document.querySelectorAll('#sampleSeg .chip').forEach(function(c){ c.addEventListener('click',function(){
+    var k=parseInt(c.getAttribute('data-sample'),10)||1;
+    if(!gadgets.length){ loadSample(k); return; }
+    askBox(t('ask_sample'), function(ok){ if(ok) loadSample(k); });   // いまのしくみが消えるので確かめる
+  }); });
   document.getElementById('clearBtn').addEventListener('click',function(){
     function doClear(){ gadgets.forEach(clearBodies); gadgets=[]; clearBalls(); worldTall=false; worldBottom=H; camY=0; sel=null; renderSliders(); updateWorldUI(); }
     if(!gadgets.length){ doClear(); return; }   // 何も置いていないときは確かめない
@@ -1277,6 +1374,8 @@ function watchBack(){
      タイトルの ことば の となりの「？ あそびかた」(g_title)から開いたときは閉じる(タイトルのまま)
    ・読み終えたら localStorage の shikumi_guide_v1 = '1'
    ・ボタンは今までどおり click で動く(キャンバスの pointerdown は案内の下に届かない) */
+var APP_VER='0.1.10';   // 画面に出す版(あそびかたの最後)。package.json / build.gradle と同じ数字にそろえる
+var SISTER_URL='https://play.google.com/store/apps/details?id=jp.soyogi.otohakoniwa';   // 姉妹作「音の箱庭」
 var GUIDE_KEY='shikumi_guide_v1', guideOv=null;
 function guideDone(){ try{ return localStorage.getItem(GUIDE_KEY)==='1'; }catch(e){ return false; } }
 function gtext(s){ return String(s==null?'':s).replace(/\{([a-z_]+)\}/g,function(m,k){ var v=t(k); return (typeof v==='string') ? v.replace(/<[^>]*>/g,' ') : m; }); }
@@ -1298,10 +1397,14 @@ function openGuide(first){
   langRow.appendChild(langLbl); langRow.appendChild(langSel);
   var h=gEl('h2','guide-h'), p=gEl('p','guide-p'), dots=gEl('div','guide-dots');
   dots.setAttribute('aria-hidden','true');
+  var sis=gEl('p','guide-sis'), sisT=gEl('span','guide-sis-t'), sisA=document.createElement('a'), ver=gEl('p','guide-ver');   // 最後のページだけ: 姉妹作の紹介 と 版
+  sisA.href=SISTER_URL; sisA.target='_blank'; sisA.rel='noopener'; sisA.setAttribute('dir','ltr');
+  sis.appendChild(sisT); sis.appendChild(document.createElement('br')); sis.appendChild(sisA);
+  ver.textContent='v'+APP_VER; ver.setAttribute('dir','ltr');
   var row=gEl('div','guide-row'), prevB=gEl('button','act guide-prev'), nextB=gEl('button','act primary guide-next');
   prevB.type='button'; nextB.type='button';
   row.appendChild(prevB); row.appendChild(nextB);
-  box.appendChild(top); box.appendChild(langRow); box.appendChild(h); box.appendChild(p); box.appendChild(dots);
+  box.appendChild(top); box.appendChild(langRow); box.appendChild(h); box.appendChild(p); box.appendChild(sis); box.appendChild(dots); box.appendChild(ver);
   ov.appendChild(box); ov.appendChild(row);
   function draw(){
     var heads=t('g_heads'), bodies=t('g_bodies'), n=bodies.length;
@@ -1313,6 +1416,8 @@ function openGuide(first){
     langLbl.textContent=t('lang');
     langSel.value=lang;
     h.textContent=gtext(heads[i]); p.textContent=gtext(bodies[i]);
+    var lastPage=(i===n-1); sis.style.display=lastPage?'':'none'; ver.style.display=lastPage?'':'none';
+    sisT.textContent=t('g_sister_lead'); sisA.textContent=t('g_sister');
     dots.textContent='';
     for(var k=0;k<n;k++) dots.appendChild(gEl('span','guide-dot'+(k===i?' on':'')));
     prevB.textContent=t('g_prev'); prevB.style.visibility=(i===0)?'hidden':'visible';   // 「つぎ」の位置を変えない
@@ -1350,6 +1455,8 @@ window.Shikumi={ get gadgets(){return gadgets;}, get balls(){return balls;}, eng
   buildDefault:buildDefault, applyLang:applyLang, LANGS:LANGS,
   get spawn(){return spawn;}, get worldBottom(){return worldBottom;}, get camY(){return camY;},
   serialize:serialize, deserialize:deserialize, applyLayout:applyLayout,
+  sampleLayout:sampleLayout, loadSample:loadSample, APP_VER:APP_VER,
+  _setH:function(v){ H=v; },   // テスト用: 盤面の高さを変えて、おためしがどの画面でも届くか確かめる
   _setLayout:function(gs,sp,wb){ gadgets.forEach(clearBodies); gadgets=gs; spawn.x=sp.x; spawn.y=sp.y; worldBottom=wb; worldTall=true; simActive=true; rebuildWorld(true); } };
 })();
 </script>
