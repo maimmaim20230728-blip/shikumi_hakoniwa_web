@@ -5,7 +5,7 @@
    ・その他(css/js/json/icon)はcache-first
    ・開発/検証用ファイル(_始まり)はキャッシュしない
    🔴 更新のたびに CACHE 名を必ず上げる(feedback-always-bump-version) */
-const CACHE = 'shikumi-web-v9';
+const CACHE = 'shikumi-web-v10';
 const ASSETS = [
   './',
   './index.html',
